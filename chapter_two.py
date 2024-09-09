@@ -93,10 +93,8 @@ st.markdown("""
 client = OpenAI()
 
 # Define the list of available genres and languages
-genres = [
-    "Children's Educational Story", "Fairy Tale", "Adventure Story",
-    "Science Fiction for Kids", "Fantasy Story", "Mystery and Detective Story", "Superhero Story"
-]
+story_type = "Inspirational Real-Life Stories"
+
 languages = ['English', '中文', 'Melayu']
 
 characters = "random main character"
@@ -267,18 +265,19 @@ def load_stories_from_json():
         return []
     
 # Generate a story with the specified parameters
-def generate_story(story_type, main_character, setting, conflict, resolution, moral, age, length_minutes, include_illustrations, include_audio, selected_language):
+def generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language):
     prompt = (
-        f"Craft a {story_type} that reflects important lessons about second chances, forgiveness, and personal growth."
-        f"The main character is {main_character}, set in {setting}."
-        f"The conflict is {conflict}, which highlights the challenges people face in making the right choices."
-        f"The resolution involves {resolution}, focusing on redemption, change, and community support."
-        f"The moral of the story is '{moral}', encouraging reflection on responsibility and making better choices in life."
-        f"This story is tailored for secondary school students in Singapore, so please use age-appropriate language and themes."
-        f"Ensure the narrative fosters empathy, understanding, and an open mind towards individuals who are rebuilding their lives."
+        f"Write an inspirational real-life story that reflects personal growth, second chances, and overcoming challenges."
+        f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
+        f"The story is set in {setting}, focusing on the general experience of learning from mistakes and seeking redemption."
+        f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
+        f"The resolution is {resolution}, highlighting themes of personal responsibility, forgiveness, and community support."
+        f"The moral of the story is '{moral}', aimed at encouraging reflection and promoting empathy, understanding, and growth."
+        f"Ensure the story is age-appropriate for students aged 13 to 16, using clear and simple language. Avoid any content that could be potentially traumatising or unsuitable."
         f"Keep the story length around {200 * length_minutes} words."
         f"Display only the story."
     )
+
 
     
     # Using the spinner to show processing state for story generation
@@ -341,13 +340,6 @@ with st.sidebar:
     include_audio = st.radio("Include Audio?", ["No", "Yes"])
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
-# Genre Configuration
-genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
-if genre_choice == "Manual":
-    story_type = st.sidebar.selectbox("Select Genre", genres)
-else:
-    story_type = random.choice(genres)
-    st.sidebar.write(f"Random Genre: {story_type}")
 
 # Main Character Configuration
 character_choice = st.sidebar.radio("Main Character:", ["Random", "Manual"])
