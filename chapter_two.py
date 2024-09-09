@@ -269,14 +269,17 @@ def load_stories_from_json():
 # Generate a story with the specified parameters
 def generate_story(story_type, main_character, setting, conflict, resolution, moral, age, length_minutes, include_illustrations, include_audio, selected_language):
     prompt = (
-        f"{story_type} about {main_character}, set in {setting}."
-        f"The main conflict is {conflict}, and it resolves {resolution}."
-        f"The moral of the story is '{moral}'."
-        f"This story is intended for children aged {age}. Please use clear and simple language with basic words suitable for a {age}-year-old."
-        f"Use short sentences and include familiar, everyday concepts."
-        f"Craft the story to be about {200 * length_minutes} words long."
+        f"Craft a {story_type} that reflects important lessons about second chances, forgiveness, and personal growth."
+        f"The main character is {main_character}, set in {setting}."
+        f"The conflict is {conflict}, which highlights the challenges people face in making the right choices."
+        f"The resolution involves {resolution}, focusing on redemption, change, and community support."
+        f"The moral of the story is '{moral}', encouraging reflection on responsibility and making better choices in life."
+        f"This story is tailored for secondary school students in Singapore, so please use age-appropriate language and themes."
+        f"Ensure the narrative fosters empathy, understanding, and an open mind towards individuals who are rebuilding their lives."
+        f"Keep the story length around {200 * length_minutes} words."
         f"Display only the story."
     )
+
     
     # Using the spinner to show processing state for story generation
     with st.spinner(f"Generating your story..."):
@@ -293,7 +296,6 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
             "conflict": conflict,
             "resolution": resolution,
             "moral": moral,
-            "age": age,
             "length_minutes": length_minutes,
             "text": story_text,
             "include_illustrations": include_illustrations,
@@ -337,7 +339,6 @@ with st.sidebar:
     selected_language = st.selectbox("Select Language:", languages)
     include_illustrations = st.radio("Include Illustrations?", ["No", "Yes"])
     include_audio = st.radio("Include Audio?", ["No", "Yes"])
-    age = st.slider("Age of audience (years old):", 1, 12, 5)
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
 # Genre Configuration
@@ -366,7 +367,7 @@ with tab1:
         random_conflict = 'random conflict'
         random_resolution = 'random resolution'
         random_moral = 'a random moral lesson'
-        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, age, length_minutes, include_illustrations, include_audio, selected_language)
+        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_illustrations, include_audio, selected_language)
 
 # Tab 2: Generate Story
 with tab2:
@@ -375,7 +376,7 @@ with tab2:
     resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
     moral = st.text_input("Moral of the story:")
     if st.button("Generate Custom Story"):
-        generate_story(story_type, main_character, setting, conflict, resolution, moral, age, length_minutes, include_illustrations, include_audio, selected_language)
+        generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language)
 
 # Tab 3: Display Previously Saved Stories
 with tab3:
