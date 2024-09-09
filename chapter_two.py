@@ -15,7 +15,7 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Load the banner image using a relative path
-image_path = os.path.join(BASE_DIR, "banner.png")
+image_path = os.path.join(BASE_DIR, "banner2.png")
 image = Image.open(image_path)
 
 # Display the banner image
