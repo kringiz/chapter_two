@@ -93,8 +93,9 @@ st.markdown("""
 client = OpenAI()
 
 # Define the list of available genres and languages
-story_type = "Inspirational Real-Life Stories"
-
+genres = [
+    "Inspirational Real-Life Stories"
+]
 languages = ['English', '中文', 'Melayu']
 
 characters = "random main character"
@@ -340,6 +341,13 @@ with st.sidebar:
     include_audio = st.radio("Include Audio?", ["No", "Yes"])
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
+# Genre Configuration
+genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
+if genre_choice == "Manual":
+    story_type = st.sidebar.selectbox("Select Genre", genres)
+else:
+    story_type = random.choice(genres)
+    st.sidebar.write(f"Random Genre: {story_type}")
 
 # Main Character Configuration
 character_choice = st.sidebar.radio("Main Character:", ["Random", "Manual"])
