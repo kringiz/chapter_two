@@ -266,9 +266,9 @@ def load_stories_from_json():
         return []
     
 # Generate a story with the specified parameters
-def generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language):
+def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language):
     prompt = (
-        f"Write an inspirational real-life story that reflects personal growth, second chances, and overcoming challenges."
+        f"Write an {story_type} that reflects personal growth, second chances, and overcoming challenges."
         f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
         f"The story is set in {setting}, focusing on the general experience of learning from mistakes and seeking redemption."
         f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
