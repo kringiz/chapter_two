@@ -27,7 +27,7 @@ st.markdown(
     <style>
     /* Change background image */
     [data-testid="stAppViewContainer"] {
-        background-image: url("https://github.com/clarencemun/chapter_two/blob/main/chapter_two_wallpaper.jpeg?raw=true");
+        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper2.jpeg?raw=true");
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
