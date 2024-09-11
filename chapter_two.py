@@ -358,7 +358,7 @@ else:
     st.sidebar.write(f"Random Main Character")
 
 # Main tabs
-tab1, tab2, tab3 = st.tabs(["Spark", "Crafter", "Echoes"])
+tab1, tab2, tab3 = st.tabs(["Rebirth\n(random)", "Renew\n(custom)", "Reflect\n(archive)"])
 
 # Tab 1: Generate Random Story
 with tab1:
