@@ -358,10 +358,11 @@ else:
     st.sidebar.write(f"Random Main Character")
 
 # Main tabs
-tab1, tab2, tab3 = st.tabs(["Rebirth\n(random)", "Renew\n(custom)", "Reflect\n(archive)"])
+tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 
 # Tab 1: Generate Random Story
 with tab1:
+    st.write("(Random)")
     if st.button("Generate Random Story"):
         random_setting = 'random setting'
         random_conflict = 'random conflict'
@@ -371,6 +372,7 @@ with tab1:
 
 # Tab 2: Generate Story
 with tab2:
+    st.write("(Custom)")
     setting = st.text_input("Where the story takes place:")
     conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
     resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
@@ -380,6 +382,7 @@ with tab2:
 
 # Tab 3: Display Previously Saved Stories
 with tab3:
+    st.write("(Archive)")
     previous_stories = load_stories_from_json()
     if previous_stories:
         for story in previous_stories:
