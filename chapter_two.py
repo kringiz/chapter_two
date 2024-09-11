@@ -14,12 +14,12 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 # Set base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Load the banner image using a relative path
-image_path = os.path.join(BASE_DIR, "banner2.png")
-image = Image.open(image_path)
+# # Load the banner image using a relative path
+# image_path = os.path.join(BASE_DIR, "banner2.png")
+# image = Image.open(image_path)
 
-# Display the banner image
-st.image(image, use_column_width=True)
+# # Display the banner image
+# st.image(image, use_column_width=True)
 
 # Combined HTML to inject custom CSS for the background, text backgrounds, font color, font sizes, and element styling
 st.markdown(
@@ -27,7 +27,7 @@ st.markdown(
     <style>
     /* Change background image */
     [data-testid="stAppViewContainer"] {
-        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper3.jpeg?raw=true");
+        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper4.jpg?raw=true");
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
