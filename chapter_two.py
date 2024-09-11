@@ -98,7 +98,7 @@ genres = [
 ]
 languages = ['English', '中文', 'Melayu']
 
-characters = "random main character"
+characters = "Kai"
 
 # Initialise message history and image counter
 message_history = []
@@ -363,7 +363,7 @@ tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 # Tab 1: Generate Random Story
 with tab1:
     if st.button("Generate Random Story"):
-        random_setting = 'random setting'
+        random_setting = 'Singapore'
         random_conflict = 'random conflict'
         random_resolution = 'random resolution'
         random_moral = 'a random moral lesson'
