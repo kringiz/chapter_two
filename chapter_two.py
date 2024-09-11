@@ -196,7 +196,7 @@ def generate_images_from_story(story_text):
             combined_paragraph += " " + paragraphs[i + 2].strip()
 
         if combined_paragraph:
-            prompt = f"Illustrate a charming scene in the style of Enid Blyton, featuring a whimsical setting with colourful characters. Include playful animals and children interacting in a magical, yet inviting environment. The scene should evoke a sense of adventure and joy, capturing the imagination of young readers. The colours should be bright and inviting, with soft and rounded shapes to create a gentle, comforting atmosphere. The overall style should be reminiscent of classic children's books, with a touch of fantasy and magic. Full story context: {story_context} Current focus: {combined_paragraph}"
+            prompt = f"Illustrate an inspiring scene in a clean, modern style, centred around themes of hope, second chances, and personal growth. The setting should evoke a sense of renewal and positivity, featuring symbolic elements such as a yellow ribbon gently flowing through the scene. The characters should include individuals of diverse backgrounds interacting in a supportive environment, conveying the idea of community, redemption, and new beginnings. The colour palette should use soft, uplifting shades of light blues, greens, and yellows, with subtle, peaceful details. The overall tone should be motivational and comforting, suitable for young readers and reflective of the themes of growth and transformation. Full story context: {story_context} Current focus: {combined_paragraph}"
             image_path = generate_image(prompt, images_directory)
             images.append((combined_paragraph, image_path))
 
@@ -362,7 +362,6 @@ tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 
 # Tab 1: Generate Random Story
 with tab1:
-    st.write("(Random)")
     if st.button("Generate Random Story"):
         random_setting = 'random setting'
         random_conflict = 'random conflict'
@@ -372,7 +371,6 @@ with tab1:
 
 # Tab 2: Generate Story
 with tab2:
-    st.write("(Custom)")
     setting = st.text_input("Where the story takes place:")
     conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
     resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
@@ -382,7 +380,7 @@ with tab2:
 
 # Tab 3: Display Previously Saved Stories
 with tab3:
-    st.write("(Archive)")
+    st.write("(Story Archive)")
     previous_stories = load_stories_from_json()
     if previous_stories:
         for story in previous_stories:
