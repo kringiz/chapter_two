@@ -196,7 +196,7 @@ def generate_images_from_story(story_text):
             combined_paragraph += " " + paragraphs[i + 2].strip()
 
         if combined_paragraph:
-            prompt = f"Generate a realistic scene in an artistic style that captures themes of personal growth, redemption, and second chances. The setting is a modern, everyday environment like a park, classroom, or community space, where diverse individuals are interacting in positive, supportive ways. Use soft, natural colours like light blues, greens, and yellows to evoke an atmosphere of hope and renewal. The image should have a warm, approachable style with emotional depth, suitable for a teenage audience, conveying a sense of maturity and reflection. Full story context: {story_context} Current focus: {combined_paragraph}"
+            prompt = f"Generate a realistic, emotionally evocative scene that embodies the themes of second chances and personal growth. Depict a modern, everyday environment—such as a park at sunrise, a softly lit classroom, or a welcoming community space—where individuals are engaging in moments of reflection, connection, or support. The scene should capture meaningful interactions or personal moments that emphasize the emotions involved in starting over. Use soft, natural colors like warm yellows, gentle blues, and calming greens to evoke hope and renewal. The overall style should be warm and approachable, with emotional depth that resonates with a teenage audience, reflecting the maturity and vulnerability of embracing a second chance. Full story context: {story_context} Current focus: {combined_paragraph}"
             image_path = generate_image(prompt, images_directory)
             images.append((combined_paragraph, image_path))
 
