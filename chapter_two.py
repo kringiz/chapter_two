@@ -157,7 +157,7 @@ def chat_with_model(input_text, language):
 
     # Call the GPT model using the client object and handle response correctly
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # You can replace it with "gpt-4-1106-preview" if using GPT-4
+        model="gpt-4o",  # You can replace it with "gpt-4-1106-preview" if using GPT-4
         messages=message_history,
         temperature=0.7  # Adjust temperature as needed
     )
