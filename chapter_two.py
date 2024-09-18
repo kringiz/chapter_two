@@ -175,7 +175,7 @@ def chat_with_model(input_text, language):
     return story_text
 
 # Generate images from the story
-def generate_images_from_story(story_text, main_character, selected_language):
+def generate_images_from_story(story_text):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     images_directory = os.path.join(BASE_DIR, "images", timestamp)
     os.makedirs(images_directory, exist_ok=True)
@@ -196,7 +196,7 @@ def generate_images_from_story(story_text, main_character, selected_language):
             combined_paragraph += " " + paragraphs[i + 2].strip()
 
         if combined_paragraph:
-            prompt = f"Generate an emotionally evocative scene that embodies the themes of second chances and personal growth. Depict {main_character} in {setting}, capturing the emotions involved in starting over. Use soft, natural colors like warm yellows, gentle blues, and calming greens to evoke hope and renewal. The style should be warm and approachable, with emotional depth that resonates with a teenage audience. Any text in the image should be in {selected_language}. Full story context: {story_context} Current focus: {combined_paragraph}"
+            prompt = f"Generate a realistic, emotionally evocative scene that embodies the themes of second chances and personal growth. Depict a modern, everyday environment—such as a park at sunrise, a softly lit classroom, or a welcoming community space—where individuals are engaging in moments of reflection, connection, or support. The scene should capture meaningful interactions or personal moments that emphasize the emotions involved in starting over. Use soft, natural colors like warm yellows, gentle blues, and calming greens to evoke hope and renewal. The overall style should be warm and approachable, with emotional depth that resonates with a teenage audience, reflecting the maturity and vulnerability of embracing a second chance. Full story context: {story_context} Current focus: {combined_paragraph}"
             image_path = generate_image(prompt, images_directory)
             images.append((combined_paragraph, image_path))
 
@@ -309,7 +309,7 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         # Check if illustrations are included
         if include_illustrations == "Yes":
             with st.spinner("Generating illustrations..."):
-                paragraph_image_pairs = generate_images_from_story(story_text, main_character, selected_language)
+                paragraph_image_pairs = generate_images_from_story(story_text)
             for paragraph, image_path in paragraph_image_pairs:
                 if image_path:  # Ensure the image was generated successfully
                     st.image(image_path, caption=paragraph)
