@@ -274,7 +274,7 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
         f"The resolution is {resolution}, highlighting themes of personal responsibility, forgiveness, and community support."
         f"The moral of the story is '{moral}', aimed at encouraging reflection and promoting empathy, understanding, and growth."
-        f"Ensure the story is age-appropriate for students aged 13 to 16, using clear and simple language. Avoid any content that could be potentially traumatising or unsuitable."
+        f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16. Avoid any content that could be potentially traumatising or unsuitable."
         f"Keep the story length around {200 * length_minutes} words. Keep each paragraph to 4 sentences."
         f"Display only the story."
     )
