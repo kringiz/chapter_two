@@ -309,7 +309,7 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         # Check if illustrations are included
         if include_illustrations == "Yes":
             with st.spinner("Generating illustrations..."):
-                paragraph_image_pairs = generate_images_from_story(story_text)
+                paragraph_image_pairs = generate_images_from_story(story_text, main_character, selected_language)
             for paragraph, image_path in paragraph_image_pairs:
                 if image_path:  # Ensure the image was generated successfully
                     st.image(image_path, caption=paragraph)
