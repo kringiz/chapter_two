@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import requests
 from openai import OpenAI
-import openai
 import random
 from gtts import gTTS
 from PIL import Image
@@ -14,62 +13,42 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 # Set base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Combined HTML to inject custom CSS for the background, text backgrounds, font color, font sizes, and element styling
+# Font size slider for dynamic adjustment
+font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20)
+
+# Inject custom CSS to adjust font size dynamically based on slider
 st.markdown(
-    """
+    f"""
     <style>
+    /* Dynamic font size adjustment for all text elements */
+    .dynamic-font {{
+        font-size: {font_size}px !important;
+    }}
+
     /* Change background image */
-    [data-testid="stAppViewContainer"] {
+    [data-testid="stAppViewContainer"] {{
         background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
         background-attachment: local;
-    }
+    }}
 
     /* Adding semi-transparent backgrounds to text widgets for better readability */
-    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {
+    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {{
         background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
         border-radius: 5px; /* Rounded borders */
         padding: 5px; /* Padding around text */
         margin-bottom: 5px; /* Space between widgets */
         color: #333333; /* Dark grey font color */
-        font-size: 25px; /* Increased font size for inputs and buttons */
-    }
-
-    /* Specific font size increases for the sidebar elements */
-    [data-testid="stSidebar"] .stTextInput, [data-testid="stSidebar"] .stSelectbox, [data-testid="stSidebar"] .stButton, [data-testid="stSidebar"] .stSlider {
-        font-size: 18px; /* Larger font size for sidebar elements */
-    }
-
-    /* You can customize font color specifically for titles and headers */
-    .stTitle, .stHeader, .big-font {
-        color: #2E4053; /* Example: darker shade of blue-grey */
-        font-size: 30px; /* Larger font size for titles */
-    }
+    }}
 
     /* Style for big-font class used for larger text */
-    .big-font {
-        font-size: 30px !important; /* Ensuring it overrides other styles */
+    .big-font {{
+        font-size: 30px !important;
         font-weight: bold;
-    }
+    }}
 
-    /* Style for medium-font class used for medium text */
-    .medium-font {
-        font-size: 20px !important; /* Ensuring it overrides other styles */
-        font-weight: bold;
-    }
-
-    /* Style for small-font class used for small text */
-    .small-font {
-        font-size: 12px !important; /* Ensuring it overrides other styles */
-        font-weight: bold;
-    }
-
-    /* Ensuring the rest of the container is also covered */
-    [data-testid="stSidebar"], [data-testid="stHeader"] {
-        background-color: transparent;
-    }
     </style>
     """,
     unsafe_allow_html=True
@@ -77,8 +56,8 @@ st.markdown(
 
 # Add developer credit
 st.markdown("""
-    <div style="text-align: left;">
-        <p class="small-font">Developed by Clarence Mun</p>
+    <div class="dynamic-font" style="text-align: left;">
+        <p>Developed by Clarence Mun</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -327,23 +306,23 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
 # Sidebar for input configuration (shared across tabs)
 with st.sidebar:
     st.title("Configuration")
-    selected_language = st.selectbox("Select Language:", languages, key="language_selectbox")
-    include_illustrations = st.radio("Include Illustrations?", ["No", "Yes"], key="illustrations_radio")
-    include_audio = st.radio("Include Audio?", ["No", "Yes"], key="audio_radio")
-    length_minutes = st.slider("Length of story (minutes):", 1, 10, 5, key="length_slider")
+    selected_language = st.selectbox("Select Language:", languages)
+    include_illustrations = st.radio("Include Illustrations?", ["No", "Yes"])
+    include_audio = st.radio("Include Audio?", ["No", "Yes"])
+    length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
 # Genre Configuration
-genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"], key="genre_radio")
+genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
 if genre_choice == "Manual":
-    story_type = st.sidebar.selectbox("Select Genre", genres, key="genre_selectbox")
+    story_type = st.sidebar.selectbox("Select Genre", genres)
 else:
     story_type = random.choice(genres)
     st.sidebar.write(f"Random Genre: {story_type}")
 
 # Main Character Configuration
-character_choice = st.sidebar.radio("Main Character:", ["Random", "Manual"], key="character_radio")
+character_choice = st.sidebar.radio("Main Character:", ["Random", "Manual"])
 if character_choice == "Manual":
-    main_character = st.sidebar.text_input("Enter Main Character's Name", key="character_input")
+    main_character = st.sidebar.text_input("Enter Main Character's Name", "")
 else:
     main_character = characters
     st.sidebar.write(f"Random Main Character")
@@ -353,7 +332,8 @@ tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 
 # Tab 1: Generate Random Story
 with tab1:
-    if st.button("Generate Random Story", key="random_story_button"):
+    st.markdown('<div class="dynamic-font">Welcome to Rebirth! Here you can generate random stories.</div>', unsafe_allow_html=True)
+    if st.button("Generate Random Story"):
         random_setting = 'Singapore'
         random_conflict = 'random conflict'
         random_resolution = 'random resolution'
@@ -362,11 +342,12 @@ with tab1:
 
 # Tab 2: Generate Story
 with tab2:
-    setting = st.text_input("Where the story takes place:", key="setting_input")
-    conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.", key="conflict_input")
-    resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.", key="resolution_input")
-    moral = st.text_input("Moral of the story:", key="moral_input")
-    if st.button("Generate Custom Story", key="custom_story_button"):
+    st.markdown('<div class="dynamic-font">Custom story creation</div>', unsafe_allow_html=True)
+    setting = st.text_input("Where the story takes place:")
+    conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
+    resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
+    moral = st.text_input("Moral of the story:")
+    if st.button("Generate Custom Story"):
         generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language)
 
 # Tab 3: Display Previously Saved Stories
@@ -374,11 +355,11 @@ with tab3:
     st.write("(Story Archive)")
     previous_stories = load_stories_from_json()
     if previous_stories:
-        for idx, story in enumerate(previous_stories):
-            with st.expander(f"{story['story_type']} - {story['main_character']}", key=f"expander_{idx}"):
-                st.write(f"Story: {story['text']}")
-                st.write(f"Genre: {story['story_type']}, Main Character: {story['main_character']}")
-                st.write(f"Setting: {story['setting']}, Conflict: {story['conflict']}")
-                st.write(f"Resolution: {story['resolution']}, Moral: {story['moral']}")
+        for story in previous_stories:
+            with st.expander(f"{story['story_type']} - {story['main_character']}"):
+                st.markdown(f'<div class="dynamic-font">Story: {story["text"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Genre: {story["story_type"]}, Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}, Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Resolution: {story["resolution"]}, Moral: {story["moral"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
