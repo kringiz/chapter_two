@@ -140,7 +140,7 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
     )
 
     with st.spinner("Generating your story..."):
-        story_text = ChatGPT4(system_prompt, user_prompt, model_name="gpt-4")
+        story_text = ChatGPT4(system_prompt, user_prompt, model_name="gpt-4-0125-preview")
 
     if story_text:
         st.success("Story generated successfully!")
