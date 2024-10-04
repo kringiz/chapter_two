@@ -13,10 +13,6 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 # Set base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Initialize session state for the story text
-if 'generated_story' not in st.session_state:
-    st.session_state.generated_story = ""
-
 # Font size slider for dynamic adjustment
 font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20)
 
@@ -153,6 +149,57 @@ def chat_with_model(input_text, language):
 
     return story_text
 
+# Generate images from the story
+def generate_images_from_story(story_text):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    images_directory = os.path.join(BASE_DIR, "images", timestamp)
+    os.makedirs(images_directory, exist_ok=True)
+
+    paragraphs = story_text.split('\n\n')
+    images = []
+    
+    # Context from the first paragraph
+    story_context = paragraphs[0].strip() if paragraphs else ""
+
+    # Loop over paragraphs by step of 3, starting from the first
+    for i in range(1, len(paragraphs), 3):
+        # Combine three paragraphs for each image
+        combined_paragraph = paragraphs[i].strip()
+        if i + 1 < len(paragraphs):
+            combined_paragraph += " " + paragraphs[i + 1].strip()
+        if i + 2 < len(paragraphs):
+            combined_paragraph += " " + paragraphs[i + 2].strip()
+
+        if combined_paragraph:
+            prompt = f"Generate a realistic, emotionally evocative scene that embodies the themes of second chances and personal growth. Depict a modern, everyday environment—such as a park at sunrise, a softly lit classroom, or a welcoming community space—where individuals are engaging in moments of reflection, connection, or support. The scene should capture meaningful interactions or personal moments that emphasize the emotions involved in starting over. Use soft, natural colors like warm yellows, gentle blues, and calming greens to evoke hope and renewal. The overall style should be warm and approachable, with emotional depth that resonates with a teenage audience, reflecting the maturity and vulnerability of embracing a second chance. Full story context: {story_context} Current focus: {combined_paragraph}"
+            image_path = generate_image(prompt, images_directory)
+            images.append((combined_paragraph, image_path))
+
+    return images
+
+# Generate an image from a description using DALL-E
+def generate_image(description, images_directory):
+    global image_counter
+    # Generate filename within the provided directory
+    filename = f"generated_image_{image_counter}.jpg"
+    image_counter += 1
+    image_path = os.path.join(images_directory, filename)
+
+    # Fetch and save the image
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=description,
+        size="1024x1024",
+        quality="standard",
+        n=1
+    )
+    image_url = response.data[0].url
+    image_response = requests.get(image_url)
+    if image_response.status_code == 200:
+        with open(image_path, "wb") as image_file:
+            image_file.write(image_response.content)
+    return image_path
+
 # Function to save a story to a JSON file
 def save_story_to_json(story_data):
     # Specify the directory for saved stories
@@ -213,8 +260,6 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
     
     if story_text:
         st.success("Story generated successfully!")
-        # Store the generated story in session state
-        st.session_state.generated_story = story_text
 
         # Prepare data to be saved
         story_data = {
@@ -237,26 +282,33 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         # Check if illustrations are included
         if include_illustrations == "Yes":
             with st.spinner("Generating illustrations..."):
-                # Generate images but don't overwrite the story text
-                generate_images_from_story(story_text)
+                paragraph_image_pairs = generate_images_from_story(story_text)
+            for paragraph, image_path in paragraph_image_pairs:
+                if image_path:  # Ensure the image was generated successfully
+                    # Display the image with plain text caption
+                    st.image(image_path, use_column_width=True)
+                    st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+            st.success("Illustrations generated successfully!")
 
-        # Generating speech for the plain text
-        if include_audio == "Yes":
-            with st.spinner("Generating audio..."):
-                generate_speech(story_text)
-            st.success("Audio generated successfully!")
+            # Generating speech without displaying the text
+            if include_audio == "Yes":
+                with st.spinner("Generating audio..."):
+                    generate_speech(story_text)
+                st.success("Audio generated successfully!")
+
+        else:
+            # Display each paragraph of the story text with dynamic font size
+            for paragraph in story_text.split('\n'):
+                st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+            
+            # Generating speech for the plain text
+            if include_audio == "Yes":
+                with st.spinner("Generating audio..."):
+                    generate_speech(story_text)
+                st.success("Audio generated successfully!")
         
     else:
         st.error("The story generation did not return any text. Please try again.")
-
-# Function to display the generated story
-def display_story():
-    if st.session_state.generated_story:
-        # Display each paragraph of the story text with dynamic font size
-        for paragraph in st.session_state.generated_story.split('\n'):
-            st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
-    else:
-        st.write("No story generated yet.")
 
 # Sidebar for input configuration (shared across tabs)
 with st.sidebar:
@@ -265,6 +317,22 @@ with st.sidebar:
     include_illustrations = st.radio("Include Illustrations?", ["No", "Yes"])
     include_audio = st.radio("Include Audio?", ["No", "Yes"])
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
+
+# Genre Configuration
+genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
+if genre_choice == "Manual":
+    story_type = st.sidebar.selectbox("Select Genre", genres)
+else:
+    story_type = random.choice(genres)
+    st.sidebar.write(f"Random Genre: {story_type}")
+
+# Main Character Configuration
+character_choice = st.sidebar.radio("Main Character:", ["Random", "Manual"])
+if character_choice == "Manual":
+    main_character = st.sidebar.text_input("Enter Main Character's Name", "")
+else:
+    main_character = characters
+    st.sidebar.write(f"Random Main Character")
 
 # Main tabs
 tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
@@ -276,10 +344,7 @@ with tab1:
         random_conflict = 'random conflict'
         random_resolution = 'random resolution'
         random_moral = 'a random moral lesson'
-        generate_story("Inspirational Real-Life Stories", characters, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_illustrations, include_audio, selected_language)
-
-    # Display the story if it exists
-    display_story()
+        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_illustrations, include_audio, selected_language)
 
 # Tab 2: Generate Story
 with tab2:
@@ -288,10 +353,7 @@ with tab2:
     resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
     moral = st.text_input("Moral of the story:")
     if st.button("Generate Custom Story"):
-        generate_story("Inspirational Real-Life Stories", characters, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language)
-
-    # Display the story if it exists
-    display_story()
+        generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language)
 
 # Tab 3: Display Previously Saved Stories
 with tab3:
