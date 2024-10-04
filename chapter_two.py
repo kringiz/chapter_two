@@ -238,13 +238,12 @@ with st.sidebar:
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
 # Main tabs
-tab1, tab2 = st.tabs(["Generate Story", "Reflect (Story Archive)"])
+tab1, tab2 = st.tabs(["Rebirth", "Reflect (Story Archive)"])
 
 # Tab 1: Generate Custom Story
 with tab1:
-
     # Add a field for main character name, default to "Kai" if none provided
-    main_character = st.text_input("Enter the main character's name (Default: Kai):", value="Kai")
+    main_character = st.text_input("Enter the main character's name:", value="Kai")
 
     # Update the custom input fields to align with the second chances theme
     setting = st.text_input(
@@ -254,14 +253,17 @@ with tab1:
     )
     challenge = st.text_input(
         "What is the main challenge faced by the character?",
+        value="The stigma faced by the family and emotional struggles of reintegration",
         help="Example: The stigma faced by the family, emotional struggles of reintegration, or rebuilding trust."
     )
     outcome = st.text_input(
         "What is the outcome or resolution of the challenge?",
+        value="The family rebuilds relationships and focuses on forgiveness",
         help="Example: The family rebuilds relationships, focuses on forgiveness, and gains support from the community."
     )
     lesson = st.text_input(
         "What is the lesson or moral of the story?",
+        value="The power of second chances, forgiveness, and family unity",
         help="Example: The power of second chances, forgiveness, and family unity."
     )
 
