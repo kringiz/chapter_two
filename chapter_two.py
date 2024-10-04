@@ -1,69 +1,79 @@
 import streamlit as st
 import os
+import requests
 from openai import OpenAI
+import openai
+import random
+from gtts import gTTS
 from PIL import Image
+import json
+from datetime import datetime
 
-# Add a slider for font size adjustment (magnification)
-font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20, step=1)
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
-# Inject CSS based on the slider value to dynamically adjust font size for all text elements
+# Set base directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Combined HTML to inject custom CSS for the background, text backgrounds, font color, font sizes, and element styling
 st.markdown(
-    f"""
+    """
     <style>
-    /* Dynamic font size adjustment for all text elements */
-    .dynamic-font {{
-        font-size: {font_size}px !important;
-    }}
+    /* Change background image */
+    [data-testid="stAppViewContainer"] {
+        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: local;
+    }
 
-    /* Styling for input elements */
-    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .stMarkdown, .stTabs, .stRadio {{
-        background-color: rgba(255, 255, 255, 0.75); 
-        border-radius: 5px;
-        padding: 5px;
-        margin-bottom: 5px;
-        color: #333333;
-    }}
+    /* Adding semi-transparent backgrounds to text widgets for better readability */
+    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {
+        background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
+        border-radius: 5px; /* Rounded borders */
+        padding: 5px; /* Padding around text */
+        margin-bottom: 5px; /* Space between widgets */
+        color: #333333; /* Dark grey font color */
+        font-size: 25px; /* Increased font size for inputs and buttons */
+    }
+
+    /* Specific font size increases for the sidebar elements */
+    [data-testid="stSidebar"] .stTextInput, [data-testid="stSidebar"] .stSelectbox, [data-testid="stSidebar"] .stButton, [data-testid="stSidebar"] .stSlider {
+        font-size: 18px; /* Larger font size for sidebar elements */
+    }
+
+    /* You can customize font color specifically for titles and headers */
+    .stTitle, .stHeader, .big-font {
+        color: #2E4053; /* Example: darker shade of blue-grey */
+        font-size: 30px; /* Larger font size for titles */
+    }
+
+    /* Style for big-font class used for larger text */
+    .big-font {
+        font-size: 30px !important; /* Ensuring it overrides other styles */
+        font-weight: bold;
+    }
+
+    /* Style for medium-font class used for medium text */
+    .medium-font {
+        font-size: 20px !important; /* Ensuring it overrides other styles */
+        font-weight: bold;
+    }
+
+    /* Style for small-font class used for small text */
+    .small-font {
+        font-size: 12px !important; /* Ensuring it overrides other styles */
+        font-weight: bold;
+    }
+
+    /* Ensuring the rest of the container is also covered */
+    [data-testid="stSidebar"], [data-testid="stHeader"] {
+        background-color: transparent;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
-
-# Example usage of dynamic font in various text elements
-st.markdown(f"<p class='dynamic-font'>This is a title-level text.</p>", unsafe_allow_html=True)
-st.markdown(f"<p class='dynamic-font'>Here is some descriptive text that will be scaled.</p>", unsafe_allow_html=True)
-
-# Regular content (also scalable due to dynamic font class)
-st.markdown(f"<p class='dynamic-font'>Try adjusting the slider on the sidebar to change the font size of all text elements in the app!</p>", unsafe_allow_html=True)
-
-# Displaying content with dynamic font
-st.markdown(f"<p class='dynamic-font'>This text is dynamically adjusted based on the slider value!</p>", unsafe_allow_html=True)
-
-# Example for using dynamic font with a write() method, wrapping it in HTML
-st.write(f"<div class='dynamic-font'>This content is written with st.write, but still scalable!</div>", unsafe_allow_html=True)
-
-# Initialising OpenAI client (add your API key logic here)
-client = OpenAI()
-
-# Sidebar inputs and content, also adjustable if needed
-selected_language = st.sidebar.selectbox("Select Language:", ['English', '中文', 'Melayu'])
-
-include_illustrations = st.sidebar.radio("Include Illustrations?", ["No", "Yes"])
-include_audio = st.sidebar.radio("Include Audio?", ["No", "Yes"])
-length_minutes = st.sidebar.slider("Length of story (minutes):", 1, 10, 5)
-
-# Main tabs (text within the tabs is also scalable)
-tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
-
-with tab1:
-    st.markdown(f"<p class='dynamic-font'>Welcome to the Rebirth tab! This text will also scale dynamically.</p>", unsafe_allow_html=True)
-
-with tab2:
-    st.markdown(f"<p class='dynamic-font'>Create your custom story here. The text scales too!</p>", unsafe_allow_html=True)
-
-with tab3:
-    st.markdown(f"<p class='dynamic-font'>Review your saved stories. This text scales dynamically based on the slider.</p>", unsafe_allow_html=True)
-
-
 
 # Add developer credit
 st.markdown("""
@@ -212,165 +222,4 @@ def generate_image(description, images_directory):
 def save_story_to_json(story_data):
     # Specify the directory for saved stories
     stories_dir = os.path.join(BASE_DIR, "saved_stories")
-    json_file_path = os.path.join(stories_dir, "stories.json")
-
-    # Ensure the directory exists
-    if not os.path.exists(stories_dir):
-        os.makedirs(stories_dir)
-
-    try:
-        # Load existing data
-        if os.path.exists(json_file_path):
-            with open(json_file_path, "r") as file:
-                data = json.load(file)
-            data.append(story_data)
-        else:
-            data = [story_data]
-        # Save updated data
-        with open(json_file_path, "w") as file:
-            json.dump(data, file, indent=4)
-        st.success("Story saved successfully!")
-    except Exception as e:
-        st.error(f"Failed to save story: {e}")
-
-# Function to load all stories from a JSON file
-def load_stories_from_json():
-    stories_dir = os.path.join(BASE_DIR, "saved_stories")
-    json_file_path = os.path.join(stories_dir, "stories.json")
-    try:
-        if os.path.exists(json_file_path):
-            with open(json_file_path, "r") as file:
-                data = json.load(file)
-            return data
-        else:
-            return []
-    except Exception as e:
-        st.error(f"Failed to load stories: {e}")
-        return []
-    
-# Generate a story with the specified parameters
-def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language):
-    prompt = (
-        f"Write an {story_type} that reflects personal growth, second chances, and overcoming challenges."
-        f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
-        f"The story is set in {setting}, focusing on the general experience of learning from mistakes and seeking redemption."
-        f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
-        f"The resolution is {resolution}, highlighting themes of personal responsibility, forgiveness, and community support."
-        f"The moral of the story is '{moral}', aimed at encouraging reflection and promoting empathy, understanding, and growth."
-        f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16. Avoid any content that could be potentially traumatising or unsuitable."
-        f"Keep the story length around {200 * length_minutes} words. Keep each paragraph to 4 sentences."
-        f"Display only the story."
-    )
-
-
-    
-    # Using the spinner to show processing state for story generation
-    with st.spinner(f"Generating your story..."):
-        story_text = chat_with_model(prompt, selected_language)
-    
-    if story_text:
-        st.success("Story generated successfully!")
-
-        # Prepare data to be saved
-        story_data = {
-            "story_type": story_type,
-            "main_character": main_character,
-            "setting": setting,
-            "conflict": conflict,
-            "resolution": resolution,
-            "moral": moral,
-            "length_minutes": length_minutes,
-            "text": story_text,
-            "include_illustrations": include_illustrations,
-            "include_audio": include_audio,
-            "language": selected_language
-        }
-        
-        # Save the story data
-        save_story_to_json(story_data)
-        
-        # Check if illustrations are included
-        if include_illustrations == "Yes":
-            with st.spinner("Generating illustrations..."):
-                paragraph_image_pairs = generate_images_from_story(story_text)
-            for paragraph, image_path in paragraph_image_pairs:
-                if image_path:  # Ensure the image was generated successfully
-                    st.image(image_path, caption=paragraph)
-            st.success("Illustrations generated successfully!")
-
-            # Generating speech without displaying the text
-            if include_audio == "Yes":
-                with st.spinner("Generating audio..."):
-                    generate_speech(story_text)
-                st.success("Audio generated successfully!")
-
-        else:
-            # Display the story text when no illustrations are included
-            st.write(story_text)
-            # Generating speech for the plain text
-            if include_audio == "Yes":
-                with st.spinner("Generating audio..."):
-                    generate_speech(story_text)
-                st.success("Audio generated successfully!")
-        
-    else:
-        st.error("The story generation did not return any text. Please try again.")
-
-# Sidebar for input configuration (shared across tabs)
-with st.sidebar:
-    st.title("Configuration")
-    selected_language = st.selectbox("Select Language:", languages)
-    include_illustrations = st.radio("Include Illustrations?", ["No", "Yes"])
-    include_audio = st.radio("Include Audio?", ["No", "Yes"])
-    length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
-
-# Genre Configuration
-genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
-if genre_choice == "Manual":
-    story_type = st.sidebar.selectbox("Select Genre", genres)
-else:
-    story_type = random.choice(genres)
-    st.sidebar.write(f"Random Genre: {story_type}")
-
-# Main Character Configuration
-character_choice = st.sidebar.radio("Main Character:", ["Random", "Manual"])
-if character_choice == "Manual":
-    main_character = st.sidebar.text_input("Enter Main Character's Name", "")
-else:
-    main_character = characters
-    st.sidebar.write(f"Random Main Character")
-
-# Main tabs
-tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
-
-# Tab 1: Generate Random Story
-with tab1:
-    if st.button("Generate Random Story"):
-        random_setting = 'Singapore'
-        random_conflict = 'random conflict'
-        random_resolution = 'random resolution'
-        random_moral = 'a random moral lesson'
-        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_illustrations, include_audio, selected_language)
-
-# Tab 2: Generate Story
-with tab2:
-    setting = st.text_input("Where the story takes place:")
-    conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
-    resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
-    moral = st.text_input("Moral of the story:")
-    if st.button("Generate Custom Story"):
-        generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language)
-
-# Tab 3: Display Previously Saved Stories
-with tab3:
-    st.write("(Story Archive)")
-    previous_stories = load_stories_from_json()
-    if previous_stories:
-        for story in previous_stories:
-            with st.expander(f"{story['story_type']} - {story['main_character']}"):
-                st.write(f"Story: {story['text']}")
-                st.write(f"Genre: {story['story_type']}, Main Character: {story['main_character']}")
-                st.write(f"Setting: {story['setting']}, Conflict: {story['conflict']}")
-                st.write(f"Resolution: {story['resolution']}, Moral: {story['moral']}")
-    else:
-        st.write("No previous stories found.")
+    json_file_path = os.path.join(stories_dir, "stories
