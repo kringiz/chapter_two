@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 from openai import AzureOpenAI
+import random
 from gtts import gTTS
 import json
 from datetime import datetime
@@ -32,12 +33,12 @@ st.markdown(
         background-attachment: local;
     }}
 
-    /* Increasing the size of the semi-transparent white background */
+    /* Adding semi-transparent backgrounds to text widgets for better readability */
     .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {{
-        background-color: rgba(255, 255, 255, 0.65); /* Larger semi-transparent white */
-        border-radius: 15px; /* More rounded borders */
-        padding: 20px; /* Larger padding around text */
-        margin-bottom: 15px; /* Increased space between widgets */
+        background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
+        border-radius: 5px; /* Rounded borders */
+        padding: 5px; /* Padding around text */
+        margin-bottom: 5px; /* Space between widgets */
         color: #333333; /* Dark grey font color */
     }}
 
@@ -69,10 +70,10 @@ client = AzureOpenAI(
     api_version=st.secrets["AZURE_API_VERSION"]
 )
 
-# Define the list of available languages
+# Define available languages
 languages = ['English', '中文', 'Melayu']
 
-# Initialise message history
+# Initialise session state for message history and generated story
 if 'message_history' not in st.session_state:
     st.session_state['message_history'] = []
 if 'generated_story' not in st.session_state:
@@ -177,16 +178,16 @@ def load_stories_from_json():
         return []
 
 # Generate a story with the specified parameters
-def generate_story(main_character, setting, challenge, outcome, lesson, length_minutes, include_audio, selected_language):
+def generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style, include_audio, selected_language):
     prompt = (
-        f"Write an inspirational real-life story about second chances for an ex-offender. "
-        f"The main character, {main_character}, faces the emotional challenges of reintegrating into family and society. "
-        f"The story is set in {setting}, focusing on the social and emotional struggles faced by both the main character and their family."
-        f"The key challenge is {challenge}, but avoid graphic details. Focus on emotional and psychological struggles."
-        f"The resolution is {outcome}, showing the power of rebuilding relationships and finding forgiveness."
-        f"The moral of the story is '{lesson}', highlighting the importance of second chances, forgiveness, and family unity."
-        f"Ensure the story is appropriate for a secondary school audience, avoiding any traumatic content."
-        f"Keep the story length to around {200 * length_minutes} words."
+        f"Write an inspirational real-life story about an ex-offender named {name}, who is rebuilding their life after a period of incarceration."
+        f"The story is set in {setting}, with a focus on their family and community."
+        f"The main conflict centers on {conflict} and the emotional struggles of the ex-offender and their family."
+        f"The rebuilding process involves {rebuilding} and is influenced by {support}."
+        f"The emotional tone of the story should be {emotional_tone}."
+        f"The ex-offender has been reintegrating into their family for {timeframe}."
+        f"The story should conclude with {resolution_style}, emphasizing the power of second chances, forgiveness, and family unity."
+        f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16."
     )
 
     # Using the spinner to show processing state for story generation
@@ -199,12 +200,14 @@ def generate_story(main_character, setting, challenge, outcome, lesson, length_m
 
         # Prepare data to be saved
         story_data = {
-            "main_character": main_character,
+            "name": name,
             "setting": setting,
-            "challenge": challenge,
-            "outcome": outcome,
-            "lesson": lesson,
-            "length_minutes": length_minutes,
+            "conflict": conflict,
+            "rebuilding": rebuilding,
+            "support": support,
+            "emotional_tone": emotional_tone,
+            "timeframe": timeframe,
+            "resolution_style": resolution_style,
             "text": story_text,
             "include_audio": include_audio,
             "language": selected_language
@@ -238,53 +241,38 @@ with st.sidebar:
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
 # Main tabs
-tab1, tab2 = st.tabs(["Rebirth", "Reflect (Story Archive)"])
+tab1, tab2 = st.tabs(["Rebirth", "Reflect"])
 
-# Tab 1: Generate Custom Story
+# Tab 1: Custom Story Generator (Rebirth)
 with tab1:
-    # Add a field for main character name, default to "Kai" if none provided
-    main_character = st.text_input("Enter the main character's name:", value="Kai")
+    st.markdown("### Generate Your Story")
 
-    # Update the custom input fields to align with the second chances theme
-    setting = st.text_input(
-        "Where is the story set?",
-        value="within a family and community context",
-        help="Example: The family’s home, a community support center, or a family gathering."
-    )
-    challenge = st.text_input(
-        "What is the main challenge faced by the character?",
-        value="The stigma faced by the family and emotional struggles of reintegration",
-        help="Example: The stigma faced by the family, emotional struggles of reintegration, or rebuilding trust."
-    )
-    outcome = st.text_input(
-        "What is the outcome or resolution of the challenge?",
-        value="The family rebuilds relationships and focuses on forgiveness",
-        help="Example: The family rebuilds relationships, focuses on forgiveness, and gains support from the community."
-    )
-    lesson = st.text_input(
-        "What is the lesson or moral of the story?",
-        value="The power of second chances, forgiveness, and family unity",
-        help="Example: The power of second chances, forgiveness, and family unity."
-    )
+    # Story Input Parameters
+    name = st.text_input("Enter the ex-offender's name", value="Kai")
+    setting = st.text_input("Story setting (e.g. Family home, community)", value="family home and community")
+    conflict = st.text_input("Main conflict (e.g. Stigma, emotional struggle)", value="the stigma faced by the family and the emotional struggle of reintegration")
+    rebuilding = st.text_input("Rebuilding process (e.g. rebuilding relationships, gaining trust)", value="rebuilding relationships and trust")
+    support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3)
+    emotional_tone = st.selectbox("Emotional tone", ["Hopeful", "Bittersweet", "Reflective", "Determined"], index=0)
+    timeframe = st.selectbox("Reintegration timeframe", ["Just returned", "A few months", "A year", "Several years"], index=0)
+    resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0)
 
-    # Trigger the story generation when the button is clicked
     if st.button("Generate Story"):
-        generate_story(main_character, setting, challenge, outcome, lesson, length_minutes, include_audio, selected_language)
+        generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style, include_audio, selected_language)
 
-# Tab 2: Display Previously Saved Stories
+# Tab 2: Display Previously Saved Stories (Reflect)
 with tab2:
     st.write("(Story Archive)")
     previous_stories = load_stories_from_json()
     if previous_stories:
         for story in previous_stories:
-            with st.expander(f"{story['main_character']} - {story['setting']}"):
-                # Ensure each paragraph of saved stories is wrapped in dynamic font
+            with st.expander(f"{story['name']} - {story['setting']}"):
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Challenge: {story["challenge"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Outcome: {story["outcome"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Lesson: {story["lesson"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Conflict: {story['conflict']}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Rebuilding: {story['rebuilding']}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Support: {story['support']}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Resolution Style: {story['resolution_style']}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
 
