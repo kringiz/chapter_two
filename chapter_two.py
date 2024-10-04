@@ -1,86 +1,69 @@
 import streamlit as st
 import os
-import requests
 from openai import OpenAI
-import openai
-import random
-from gtts import gTTS
 from PIL import Image
-import json
-from datetime import datetime
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+# Add a slider for font size adjustment (magnification)
+font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20, step=1)
 
-# Set base directory
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# # Load the banner image using a relative path
-# image_path = os.path.join(BASE_DIR, "banner2.png")
-# image = Image.open(image_path)
-
-# # Display the banner image
-# st.image(image, use_column_width=True)
-
-# Combined HTML to inject custom CSS for the background, text backgrounds, font color, font sizes, and element styling
+# Inject CSS based on the slider value to dynamically adjust font size for all text elements
 st.markdown(
-    """
+    f"""
     <style>
-    /* Change background image */
-    [data-testid="stAppViewContainer"] {
-        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-        background-attachment: local;
-    }
+    /* Dynamic font size adjustment for all text elements */
+    .dynamic-font {{
+        font-size: {font_size}px !important;
+    }}
 
-    /* Adding semi-transparent backgrounds to text widgets for better readability */
-    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {
-        background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
-        border-radius: 5px; /* Rounded borders */
-        padding: 5px; /* Padding around text */
-        margin-bottom: 5px; /* Space between widgets */
-        color: #333333; /* Dark grey font color */
-        font-size: 25px; /* Increased font size for inputs and buttons */
-    }
-
-    /* Specific font size increases for the sidebar elements */
-    [data-testid="stSidebar"] .stTextInput, [data-testid="stSidebar"] .stSelectbox, [data-testid="stSidebar"] .stButton, [data-testid="stSidebar"] .stSlider {
-        font-size: 18px; /* Larger font size for sidebar elements */
-    }
-
-    /* You can customize font color specifically for titles and headers */
-    .stTitle, .stHeader, .big-font {
-        color: #2E4053; /* Example: darker shade of blue-grey */
-        font-size: 30px; /* Larger font size for titles */
-    }
-
-    /* Style for big-font class used for larger text */
-    .big-font {
-        font-size: 30px !important; /* Ensuring it overrides other styles */
-        font-weight: bold;
-    }
-
-    /* Style for medium-font class used for medium text */
-    .medium-font {
-        font-size: 20px !important; /* Ensuring it overrides other styles */
-        font-weight: bold;
-    }
-
-    /* Style for small-font class used for small text */
-    .small-font {
-        font-size: 12px !important; /* Ensuring it overrides other styles */
-        font-weight: bold;
-    }
-
-    /* Ensuring the rest of the container is also covered */
-    [data-testid="stSidebar"], [data-testid="stHeader"] {
-        background-color: transparent;
-    }
+    /* Styling for input elements */
+    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .stMarkdown, .stTabs, .stRadio {{
+        background-color: rgba(255, 255, 255, 0.75); 
+        border-radius: 5px;
+        padding: 5px;
+        margin-bottom: 5px;
+        color: #333333;
+    }}
     </style>
     """,
     unsafe_allow_html=True
 )
+
+# Example usage of dynamic font in various text elements
+st.markdown(f"<p class='dynamic-font'>This is a title-level text.</p>", unsafe_allow_html=True)
+st.markdown(f"<p class='dynamic-font'>Here is some descriptive text that will be scaled.</p>", unsafe_allow_html=True)
+
+# Regular content (also scalable due to dynamic font class)
+st.markdown(f"<p class='dynamic-font'>Try adjusting the slider on the sidebar to change the font size of all text elements in the app!</p>", unsafe_allow_html=True)
+
+# Displaying content with dynamic font
+st.markdown(f"<p class='dynamic-font'>This text is dynamically adjusted based on the slider value!</p>", unsafe_allow_html=True)
+
+# Example for using dynamic font with a write() method, wrapping it in HTML
+st.write(f"<div class='dynamic-font'>This content is written with st.write, but still scalable!</div>", unsafe_allow_html=True)
+
+# Initialising OpenAI client (add your API key logic here)
+client = OpenAI()
+
+# Sidebar inputs and content, also adjustable if needed
+selected_language = st.sidebar.selectbox("Select Language:", ['English', '中文', 'Melayu'])
+
+include_illustrations = st.sidebar.radio("Include Illustrations?", ["No", "Yes"])
+include_audio = st.sidebar.radio("Include Audio?", ["No", "Yes"])
+length_minutes = st.sidebar.slider("Length of story (minutes):", 1, 10, 5)
+
+# Main tabs (text within the tabs is also scalable)
+tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
+
+with tab1:
+    st.markdown(f"<p class='dynamic-font'>Welcome to the Rebirth tab! This text will also scale dynamically.</p>", unsafe_allow_html=True)
+
+with tab2:
+    st.markdown(f"<p class='dynamic-font'>Create your custom story here. The text scales too!</p>", unsafe_allow_html=True)
+
+with tab3:
+    st.markdown(f"<p class='dynamic-font'>Review your saved stories. This text scales dynamically based on the slider.</p>", unsafe_allow_html=True)
+
+
 
 # Add developer credit
 st.markdown("""
