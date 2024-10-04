@@ -81,6 +81,8 @@ characters = "Kai"
 # Initialise message history
 if 'message_history' not in st.session_state:
     st.session_state['message_history'] = []
+if 'generated_story' not in st.session_state:
+    st.session_state['generated_story'] = None
 
 # Get language prefix for story generation
 def get_language_prefix(language):
@@ -219,9 +221,6 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         # Save the story data
         save_story_to_json(story_data)
 
-        # Display the story only after it is generated
-        display_story()
-        
         # Generating speech for the plain text
         if include_audio == "Yes":
             with st.spinner("Generating audio..."):
@@ -231,9 +230,9 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
     else:
         st.error("The story generation did not return any text. Please try again.")
 
-# Display the story with the dynamically adjustable font size
+# Function to display the story
 def display_story():
-    if 'generated_story' in st.session_state:
+    if 'generated_story' in st.session_state and st.session_state['generated_story']:
         story_text = st.session_state['generated_story']
         # Display each paragraph of the story text with dynamic font size
         for paragraph in story_text.split('\n'):
