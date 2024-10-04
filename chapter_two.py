@@ -1,8 +1,9 @@
 import streamlit as st
 import os
-import json
 from openai import AzureOpenAI
+import random
 from gtts import gTTS
+import json
 from datetime import datetime
 
 # Set up Azure OpenAI API key and endpoint
@@ -11,43 +12,75 @@ os.environ["AZURE_OPENAI_API_KEY"] = st.secrets["AZURE_OPENAI_API_KEY"]
 # Set base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Initialise Azure OpenAI client
-client = AzureOpenAI(
-    azure_endpoint=st.secrets["AZURE_ENDPOINT"], 
-    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-    api_version=st.secrets["AZURE_API_VERSION"]
-)
-
-# Define the list of available genres and languages
-genres = ["Inspirational Real-Life Stories"]
-languages = ['English', '中文', 'Melayu']
-
-# Initialise message history
-if 'message_history' not in st.session_state:
-    st.session_state.message_history = []
-
-# Check if the story is already in session state
-if 'story_text' not in st.session_state:
-    st.session_state.story_text = ""
-
 # Font size slider for dynamic adjustment
 font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20)
 
-# Apply the dynamic font size CSS
+# Inject custom CSS to adjust font size dynamically based on slider
 st.markdown(
     f"""
     <style>
+    /* Dynamic font size adjustment for all text elements */
     .dynamic-font {{
         font-size: {font_size}px !important;
     }}
+
+    /* Change background image */
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: local;
+    }}
+
+    /* Adding semi-transparent backgrounds to text widgets for better readability */
+    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {{
+        background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
+        border-radius: 5px; /* Rounded borders */
+        padding: 5px; /* Padding around text */
+        margin-bottom: 5px; /* Space between widgets */
+        color: #333333; /* Dark grey font color */
+    }}
+
+    /* Style for big-font class used for larger text */
+    .big-font {{
+        font-size: 30px !important;
+        font-weight: bold;
+    }}
+
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Add app name and developer credit
+# Add app name with correct font size
 st.markdown(f'<div class="dynamic-font" style="text-align: center;"><h1>Chapter Two</h1></div>', unsafe_allow_html=True)
-st.markdown('<div class="dynamic-font" style="text-align: left;"><p>Developed by Clarence Mun</p></div>', unsafe_allow_html=True)
+
+# Add developer credit
+st.markdown("""
+    <div class="dynamic-font" style="text-align: left;">
+        <p>Developed by Clarence Mun</p>
+    </div>
+""", unsafe_allow_html=True)
+
+# Initialise Azure OpenAI client
+client = AzureOpenAI(
+    azure_endpoint=st.secrets["AZURE_ENDPOINT"],
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # Ensure API key is stored securely in environment variables
+    api_version=st.secrets["AZURE_API_VERSION"]
+)
+
+# Define the list of available genres and languages
+genres = [
+    "Inspirational Real-Life Stories"
+]
+languages = ['English', '中文', 'Melayu']
+
+characters = "Kai"
+
+# Initialise message history
+if 'message_history' not in st.session_state:
+    st.session_state['message_history'] = []
 
 # Get language prefix for story generation
 def get_language_prefix(language):
@@ -88,22 +121,64 @@ def generate_speech(text, filename='story.mp3', language='en', directory="audio"
 
 # Chat with the language model
 def chat_with_model(input_text, language):
+    message_history = st.session_state['message_history']
     language_prefix = get_language_prefix(language)
     full_input_text = f"{language_prefix} about {input_text}"
-    st.session_state.message_history.append({'role': 'user', 'content': full_input_text})
+    message_history.append({'role': 'user', 'content': full_input_text})
 
     # Call the GPT model using the client object and handle response correctly
     response = client.chat.completions.create(
         model="gpt-4-0125-preview",  # Azure OpenAI model
-        messages=st.session_state.message_history,
+        messages=message_history,
         temperature=0.7  # Adjust temperature as needed
     )
 
     # Accessing the response using the updated object structure
     response_text = response.choices[0].message.content
-    st.session_state.message_history.append({'role': 'assistant', 'content': response_text})
-    
+    message_history.append({'role': 'assistant', 'content': response_text})
+
+    st.session_state['message_history'] = message_history
     return response_text
+
+# Function to save a story to a JSON file
+def save_story_to_json(story_data):
+    # Specify the directory for saved stories
+    stories_dir = os.path.join(BASE_DIR, "saved_stories")
+    json_file_path = os.path.join(stories_dir, "stories.json")
+
+    # Ensure the directory exists
+    if not os.path.exists(stories_dir):
+        os.makedirs(stories_dir)
+
+    try:
+        # Load existing data
+        if os.path.exists(json_file_path):
+            with open(json_file_path, "r") as file:
+                data = json.load(file)
+            data.append(story_data)
+        else:
+            data = [story_data]
+        # Save updated data
+        with open(json_file_path, "w") as file:
+            json.dump(data, file, indent=4)
+        st.success("Story saved successfully!")
+    except Exception as e:
+        st.error(f"Failed to save story: {e}")
+
+# Function to load all stories from a JSON file
+def load_stories_from_json():
+    stories_dir = os.path.join(BASE_DIR, "saved_stories")
+    json_file_path = os.path.join(stories_dir, "stories.json")
+    try:
+        if os.path.exists(json_file_path):
+            with open(json_file_path, "r") as file:
+                data = json.load(file)
+            return data
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Failed to load stories: {e}")
+        return []
 
 # Generate a story with the specified parameters
 def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language):
@@ -119,11 +194,51 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         f"Display only the story."
     )
 
-    # Generate story text
+    # Using the spinner to show processing state for story generation
     with st.spinner(f"Generating your story..."):
-        st.session_state.story_text = chat_with_model(prompt, selected_language)
+        story_text = chat_with_model(prompt, selected_language)
+    
+    if story_text:
+        st.session_state['generated_story'] = story_text
+        st.success("Story generated successfully!")
 
-# Sidebar for input configuration
+        # Prepare data to be saved
+        story_data = {
+            "story_type": story_type,
+            "main_character": main_character,
+            "setting": setting,
+            "conflict": conflict,
+            "resolution": resolution,
+            "moral": moral,
+            "length_minutes": length_minutes,
+            "text": story_text,
+            "include_audio": include_audio,
+            "language": selected_language
+        }
+
+        # Save the story data
+        save_story_to_json(story_data)
+
+        # Display the story
+        display_story()
+        
+        # Generating speech for the plain text
+        if include_audio == "Yes":
+            with st.spinner("Generating audio..."):
+                generate_speech(story_text)
+            st.success("Audio generated successfully!")
+        
+    else:
+        st.error("The story generation did not return any text. Please try again.")
+
+# Display the story with the dynamically adjustable font size
+def display_story():
+    if 'generated_story' in st.session_state:
+        story_text = st.session_state['generated_story']
+        for paragraph in story_text.split('\n'):
+            st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+
+# Sidebar for input configuration (shared across tabs)
 with st.sidebar:
     st.title("Configuration")
     selected_language = st.selectbox("Select Language:", languages)
@@ -146,21 +261,42 @@ else:
     main_character = characters
     st.sidebar.write(f"Random Main Character")
 
-# Story Generation Section
-if st.button("Generate Story"):
-    random_setting = 'Singapore'
-    random_conflict = 'random conflict'
-    random_resolution = 'random resolution'
-    random_moral = 'a random moral lesson'
-    generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_audio, selected_language)
+# Main tabs
+tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 
-# Display the generated story with dynamic font size
-if st.session_state.story_text:
-    for paragraph in st.session_state.story_text.split('\n'):
-        st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+# Tab 1: Generate Random Story
+with tab1:
+    if st.button("Generate Random Story"):
+        random_setting = 'Singapore'
+        random_conflict = 'random conflict'
+        random_resolution = 'random resolution'
+        random_moral = 'a random moral lesson'
+        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_audio, selected_language)
 
-# Generating speech for the plain text if audio is included
-if include_audio == "Yes" and st.session_state.story_text:
-    with st.spinner("Generating audio..."):
-        generate_speech(st.session_state.story_text)
-    st.success("Audio generated successfully!")
+# Tab 2: Generate Story
+with tab2:
+    setting = st.text_input("Where the story takes place:")
+    conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
+    resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
+    moral = st.text_input("Moral of the story:")
+    if st.button("Generate Custom Story"):
+        generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language)
+
+# Tab 3: Display Previously Saved Stories
+with tab3:
+    st.write("(Story Archive)")
+    previous_stories = load_stories_from_json()
+    if previous_stories:
+        for story in previous_stories:
+            with st.expander(f"{story['story_type']} - {story['main_character']}"):
+                # Ensure each paragraph of saved stories is wrapped in dynamic font
+                for paragraph in story["text"].split('\n'):
+                    st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Genre: {story["story_type"]}, Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}, Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Resolution: {story["resolution"]}, Moral: {story["moral"]}</div>', unsafe_allow_html=True)
+    else:
+        st.write("No previous stories found.")
+
+# Display the story if it exists in session state
+display_story()
