@@ -16,11 +16,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Font size slider for dynamic adjustment
 font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20)
 
-# Inject custom CSS to adjust font size dynamically based on slider
+# Inject custom CSS to adjust font size dynamically for all elements
 st.markdown(
     f"""
     <style>
-    /* Dynamic font size adjustment for all text elements */
+    /* Dynamic font size adjustment for all elements with 'dynamic-font' class */
     .dynamic-font {{
         font-size: {font_size}px !important;
     }}
@@ -43,21 +43,13 @@ st.markdown(
         color: #333333; /* Dark grey font color */
     }}
 
-    /* Style for big-font class used for larger text */
-    .big-font {{
-        font-size: 30px !important;
-        font-weight: bold;
-    }}
-
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Add app name with correct font size
+# Apply the dynamic font class to all elements, including the app name and developer credit
 st.markdown(f'<div class="dynamic-font" style="text-align: center;"><h1>Chapter Two</h1></div>', unsafe_allow_html=True)
-
-# Add developer credit
 st.markdown("""
     <div class="dynamic-font" style="text-align: left;">
         <p>Developed by Clarence Mun</p>
@@ -66,10 +58,10 @@ st.markdown("""
 
 # Initialise Azure OpenAI client
 client = AzureOpenAI(
-        azure_endpoint=st.secrets["AZURE_ENDPOINT"], 
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # Ensure API key is stored securely in environment variables
-        api_version=st.secrets["AZURE_API_VERSION"]
-    )
+    azure_endpoint=st.secrets["AZURE_ENDPOINT"], 
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # Ensure API key is stored securely in environment variables
+    api_version=st.secrets["AZURE_API_VERSION"]
+)
 
 # Define the list of available genres and languages
 genres = [
