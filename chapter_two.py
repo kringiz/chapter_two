@@ -178,14 +178,14 @@ def load_stories_from_json():
         return []
 
 # Generate a story with the specified parameters
-def generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language):
+def generate_story(main_character, setting, challenge, outcome, lesson, length_minutes, include_audio, selected_language):
     prompt = (
-        f"Write an inspirational real-life story about second chances for ex-offenders. "
-        f"The main character, {main_character}, faces the challenge of reintegrating into society. "
-        f"The story is set in {setting}, focusing on the emotional struggles faced by both the main character and their family."
-        f"The conflict revolves around {conflict}, but avoid graphic details. Emphasize emotional and psychological challenges."
-        f"The resolution includes {resolution}, showing the power of rebuilding relationships and forgiveness."
-        f"The moral of the story is '{moral}', encouraging second chances, forgiveness, and family unity."
+        f"Write an inspirational real-life story about second chances for an ex-offender. "
+        f"The main character, {main_character}, faces the emotional challenges of reintegrating into family and society. "
+        f"The story is set in {setting}, focusing on the social and emotional struggles faced by both the main character and their family."
+        f"The key challenge is {challenge}, but avoid graphic details. Focus on emotional and psychological struggles."
+        f"The resolution is {outcome}, showing the power of rebuilding relationships and finding forgiveness."
+        f"The moral of the story is '{lesson}', highlighting the importance of second chances, forgiveness, and family unity."
         f"Ensure the story is appropriate for a secondary school audience, avoiding any traumatic content."
         f"Keep the story length to around {200 * length_minutes} words."
     )
@@ -202,9 +202,9 @@ def generate_story(main_character, setting, conflict, resolution, moral, length_
         story_data = {
             "main_character": main_character,
             "setting": setting,
-            "conflict": conflict,
-            "resolution": resolution,
-            "moral": moral,
+            "challenge": challenge,
+            "outcome": outcome,
+            "lesson": lesson,
             "length_minutes": length_minutes,
             "text": story_text,
             "include_audio": include_audio,
@@ -245,10 +245,10 @@ tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 with tab1:
     if st.button("Generate Random Story"):
         random_setting = 'Singapore'
-        random_conflict = 'stigma faced by the family'
-        random_resolution = 'forgiveness and rebuilding family bonds'
-        random_moral = 'the power of second chances and family unity'
-        generate_story("Kai", random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_audio, selected_language)
+        random_challenge = 'stigma faced by the family'
+        random_outcome = 'forgiveness and rebuilding family bonds'
+        random_lesson = 'the power of second chances and family unity'
+        generate_story("Kai", random_setting, random_challenge, random_outcome, random_lesson, length_minutes, include_audio, selected_language)
 
 # Tab 2: Generate Custom Story
 with tab2:
@@ -259,26 +259,26 @@ with tab2:
 
     # Update the custom input fields to align with the second chances theme
     setting = st.text_input(
-        "Describe the setting of the story:",
+        "Where is the story set?",
         value="within a family and community context",
         help="Example: The family’s home, a community support center, or a family gathering."
     )
-    conflict = st.text_input(
-        "What is the emotional struggle or conflict?",
-        help="Example: The stigma faced by the family, the emotional struggle of reintegrating into society, or rebuilding trust within the family."
+    challenge = st.text_input(
+        "What is the main challenge faced by the character?",
+        help="Example: The stigma faced by the family, emotional struggles of reintegration, or rebuilding trust."
     )
-    resolution = st.text_input(
-        "How is the conflict resolved?",
+    outcome = st.text_input(
+        "What is the outcome or resolution of the challenge?",
         help="Example: The family rebuilds relationships, focuses on forgiveness, and gains support from the community."
     )
-    moral = st.text_input(
+    lesson = st.text_input(
         "What is the lesson or moral of the story?",
-        help="Example: The power of second chances, forgiveness, and the strength of family unity."
+        help="Example: The power of second chances, forgiveness, and family unity."
     )
 
     # Trigger the story generation when the button is clicked
     if st.button("Generate Custom Story"):
-        generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language)
+        generate_story(main_character, setting, challenge, outcome, lesson, length_minutes, include_audio, selected_language)
 
 # Tab 3: Display Previously Saved Stories
 with tab3:
@@ -291,9 +291,9 @@ with tab3:
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Resolution: {story["resolution"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Moral: {story["moral"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Challenge: {story["challenge"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Outcome: {story["outcome"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Lesson: {story["lesson"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
 
