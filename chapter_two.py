@@ -254,6 +254,9 @@ with tab1:
 with tab2:
     st.markdown("### Custom Story Mode")
 
+    # Add a field for main character name, default to "Kai" if none provided
+    main_character = st.text_input("Main character's name:", value="Kai")
+
     # Update the custom input fields to align with the second chances theme
     setting = st.text_input("Where the story takes place (setting):", value="within a family and community context")
     conflict = st.text_input(
@@ -268,9 +271,6 @@ with tab2:
         "What is the moral of the story?",
         help="Example: The power of second chances, forgiveness, and the strength of family unity."
     )
-
-    # If no character name is manually provided, default to "Kai"
-    main_character = "Kai"
 
     # Trigger the story generation when the button is clicked
     if st.button("Generate Custom Story"):
