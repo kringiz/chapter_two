@@ -231,7 +231,7 @@ def load_stories_from_json():
     json_file_path = os.path.join(stories_dir, "stories.json")
     try:
         if os.path.exists(json_file_path):
-            with open(json_file_path, "r") as file:
+            with open(json_file_path, "r") as file):
                 data = json.load(file)
             return data
         else:
@@ -285,7 +285,8 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
                 paragraph_image_pairs = generate_images_from_story(story_text)
             for paragraph, image_path in paragraph_image_pairs:
                 if image_path:  # Ensure the image was generated successfully
-                    st.image(image_path, caption=f'<div class="dynamic-font">{paragraph}</div>', use_column_width=True, unsafe_allow_html=True)
+                    # Display the image with plain text caption (no HTML)
+                    st.image(image_path, caption=paragraph, use_column_width=True)
             st.success("Illustrations generated successfully!")
 
             # Generating speech without displaying the text
