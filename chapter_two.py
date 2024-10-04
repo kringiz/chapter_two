@@ -25,56 +25,55 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 st.markdown(
     """
     <style>
-    /* Increase global font size */
-    body {
-        font-size: 18px;
+    /* Change background image */
+    [data-testid="stAppViewContainer"] {
+        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: local;
     }
 
-    /* Increase font size for input elements */
+    /* Adding semi-transparent backgrounds to text widgets for better readability */
     .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {
         background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
-        border-radius: 5px;
-        padding: 5px;
-        margin-bottom: 5px;
-        color: #333333; 
-        font-size: 25px; /* Increased font size for inputs, text areas, buttons, etc. */
+        border-radius: 5px; /* Rounded borders */
+        padding: 5px; /* Padding around text */
+        margin-bottom: 5px; /* Space between widgets */
+        color: #333333; /* Dark grey font color */
+        font-size: 25px; /* Increased font size for inputs and buttons */
     }
 
     /* Specific font size increases for the sidebar elements */
     [data-testid="stSidebar"] .stTextInput, [data-testid="stSidebar"] .stSelectbox, [data-testid="stSidebar"] .stButton, [data-testid="stSidebar"] .stSlider {
-        font-size: 20px; /* Increase sidebar font size */
+        font-size: 18px; /* Larger font size for sidebar elements */
     }
 
-    /* Increase font size for titles and headers */
+    /* You can customize font color specifically for titles and headers */
     .stTitle, .stHeader, .big-font {
-        color: #2E4053; 
-        font-size: 32px; /* Larger font size for titles */
+        color: #2E4053; /* Example: darker shade of blue-grey */
+        font-size: 30px; /* Larger font size for titles */
     }
 
     /* Style for big-font class used for larger text */
     .big-font {
-        font-size: 30px !important;
+        font-size: 30px !important; /* Ensuring it overrides other styles */
         font-weight: bold;
     }
 
     /* Style for medium-font class used for medium text */
     .medium-font {
-        font-size: 20px !important;
+        font-size: 20px !important; /* Ensuring it overrides other styles */
         font-weight: bold;
     }
 
     /* Style for small-font class used for small text */
     .small-font {
-        font-size: 14px !important; /* Increased small font size */
+        font-size: 12px !important; /* Ensuring it overrides other styles */
         font-weight: bold;
     }
 
-    /* Tab content font size */
-    .stTabs {
-        font-size: 22px; /* Larger tab font size */
-    }
-
-    /* Ensure the rest of the container is also covered */
+    /* Ensuring the rest of the container is also covered */
     [data-testid="stSidebar"], [data-testid="stHeader"] {
         background-color: transparent;
     }
@@ -82,7 +81,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 # Add developer credit
 st.markdown("""
