@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import requests
-from openai import AzureOpenAI
+from azure.ai.openai import AzureOpenAI
 import random
 from gtts import gTTS
 from PIL import Image
@@ -113,7 +113,7 @@ def generate_speech(text, filename='story.mp3', language='en', directory="audio"
     st.audio(file_path, format='audio/mp3', start_time=0)
 
 # Chat with Azure OpenAI model
-def ChatGPT4(system_prompt, user_prompt, model_name="gpt-4"):
+def ChatGPT4(system_prompt, user_prompt, model_name="gpt-4-0125-preview"):
     client = get_azure_openai_client()
     response = client.chat.completions.create(
         model=model_name, 
@@ -156,6 +156,47 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
             st.success("Audio generated successfully!")
     else:
         st.error("The story generation did not return any text. Please try again.")
+
+# Function to save a story to a JSON file
+def save_story_to_json(story_data):
+    stories_dir = os.path.join(BASE_DIR, "saved_stories")
+    json_file_path = os.path.join(stories_dir, "stories.json")
+
+    if not os.path.exists(stories_dir):
+        os.makedirs(stories_dir)
+
+    try:
+        if os.path.exists(json_file_path):
+            with open(json_file_path, "r") as file:
+                data = json.load(file)
+            data.append(story_data)
+        else:
+            data = [story_data]
+        # Save updated data
+        with open(json_file_path, "w") as file:
+            json.dump(data, file, indent=4)
+        st.success("Story saved successfully!")
+    except Exception as e:
+        st.error(f"Failed to save story: {e}")
+
+# Function to load all stories from a JSON file
+def load_stories_from_json():
+    stories_dir = os.path.join(BASE_DIR, "saved_stories")
+    json_file_path = os.path.join(stories_dir, "stories.json")
+    
+    if not os.path.exists(stories_dir):
+        os.makedirs(stories_dir)
+
+    try:
+        if os.path.exists(json_file_path):
+            with open(json_file_path, "r") as file:
+                data = json.load(file)
+            return data
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Failed to load stories: {e}")
+        return []
 
 # Sidebar for input configuration
 with st.sidebar:
