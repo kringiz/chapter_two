@@ -285,7 +285,7 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
                 paragraph_image_pairs = generate_images_from_story(story_text)
             for paragraph, image_path in paragraph_image_pairs:
                 if image_path:  # Ensure the image was generated successfully
-                    st.image(image_path, caption=paragraph)
+                    st.image(image_path, caption=f'<div class="dynamic-font">{paragraph}</div>', use_column_width=True, unsafe_allow_html=True)
             st.success("Illustrations generated successfully!")
 
             # Generating speech without displaying the text
@@ -360,7 +360,9 @@ with tab3:
     if previous_stories:
         for story in previous_stories:
             with st.expander(f"{story['story_type']} - {story['main_character']}"):
-                st.markdown(f'<div class="dynamic-font">Story: {story["text"]}</div>', unsafe_allow_html=True)
+                # Ensure each paragraph of saved stories is wrapped in dynamic font
+                for paragraph in story["text"].split('\n'):
+                    st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Genre: {story["story_type"]}, Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}, Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Resolution: {story["resolution"]}, Moral: {story["moral"]}</div>', unsafe_allow_html=True)
