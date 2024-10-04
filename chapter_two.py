@@ -231,7 +231,7 @@ def load_stories_from_json():
     json_file_path = os.path.join(stories_dir, "stories.json")
     try:
         if os.path.exists(json_file_path):
-            with open(json_file_path, "r") as file):
+            with open(json_file_path, "r") as file:
                 data = json.load(file)
             return data
         else:
