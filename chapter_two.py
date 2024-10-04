@@ -8,8 +8,7 @@ from PIL import Image
 import json
 from datetime import datetime
 
-# Set up Azure OpenAI API key and endpoint
-os.environ["AZURE_OPENAI_API_KEY"] = st.secrets["AZURE_OPENAI_API_KEY"]
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 # Set base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -65,9 +64,8 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Initialise Azure OpenAI client
-def get_azure_openai_client():
-    return AzureOpenAI(
+# Initialise OpenAI client
+client = AzureOpenAI(
         azure_endpoint=st.secrets["AZURE_ENDPOINT"], 
         api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # Ensure API key is stored securely in environment variables
         api_version=st.secrets["AZURE_API_VERSION"]
@@ -81,8 +79,25 @@ languages = ['English', '中文', 'Melayu']
 
 characters = "Kai"
 
-# Initialise message history
+# Initialise message history and image counter
 message_history = []
+image_counter = 1
+
+# Generate a filename for saving an image
+def generate_filename():
+    global image_counter
+    filename = os.path.join(BASE_DIR, "images", f"generated_image_{image_counter}.jpg")
+    image_counter += 1
+    return filename
+
+# Get language prefix for story generation
+def get_language_prefix(language):
+    if language == '中文':
+        return "请用纯中文写一个故事"
+    elif language == 'Melayu':
+        return "Sila tulis cerita dalam bahasa Melayu penuh, tiada perkataan Inggeris"
+    else:
+        return "Create a story"
 
 # Generate speech from text using gTTS
 def generate_speech(text, filename='story.mp3', language='en', directory="audio"):
@@ -112,60 +127,95 @@ def generate_speech(text, filename='story.mp3', language='en', directory="audio"
     # Play the converted file using 'open' on macOS
     st.audio(file_path, format='audio/mp3', start_time=0)
 
-# Chat with Azure OpenAI model
-def ChatGPT4(system_prompt, user_prompt, model_name="gpt-4-0125-preview"):
-    client = get_azure_openai_client()
+# Chat with the language model
+def chat_with_model(input_text, language):
+    global message_history
+    language_prefix = get_language_prefix(language)
+    full_input_text = f"{language_prefix} about {input_text}"
+    message_history.append({'role': 'user', 'content': full_input_text})
+
+    # Call the GPT model using the client object and handle response correctly
     response = client.chat.completions.create(
-        model=model_name, 
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        temperature=0.1,
-        max_tokens=4000
-    )
-    return response.choices[0].message.content
-
-# Function to generate a story using Azure OpenAI
-def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language):
-    system_prompt = f"You are a helpful assistant. Write an {story_type} that reflects personal growth, second chances, and overcoming challenges."
-    user_prompt = (
-        f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
-        f"The story is set in {setting}, focusing on the general experience of learning from mistakes and seeking redemption."
-        f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
-        f"The resolution is {resolution}, highlighting themes of personal responsibility, forgiveness, and community support."
-        f"The moral of the story is '{moral}', aimed at encouraging reflection and promoting empathy, understanding, and growth."
-        f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16. Avoid any content that could be potentially traumatising or unsuitable."
-        f"Keep the story length around {200 * length_minutes} words."
+        model="gpt-4-0125-preview",  # You can replace it with "gpt-4-1106-preview" if using GPT-4
+        messages=message_history,
+        temperature=0.7  # Adjust temperature as needed
     )
 
-    with st.spinner("Generating your story..."):
-        story_text = ChatGPT4(system_prompt, user_prompt, model_name="gpt-4-0125-preview")
+    # Accessing the response using the updated object structure
+    response_text = response.choices[0].message.content
+    message_history.append({'role': 'assistant', 'content': response_text})
 
-    if story_text:
-        st.success("Story generated successfully!")
+    # Accumulate responses in a single string
+    story_text = ""
+    for msg in message_history:
+        if msg['role'] == 'assistant':
+            story_text += msg['content']
 
-        # Display the generated story
-        for paragraph in story_text.split('\n'):
-            st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+    return story_text
 
-        # Optionally generate speech for the story
-        if include_audio == "Yes":
-            with st.spinner("Generating audio..."):
-                generate_speech(story_text)
-            st.success("Audio generated successfully!")
-    else:
-        st.error("The story generation did not return any text. Please try again.")
+# Generate images from the story
+def generate_images_from_story(story_text):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    images_directory = os.path.join(BASE_DIR, "images", timestamp)
+    os.makedirs(images_directory, exist_ok=True)
+
+    paragraphs = story_text.split('\n\n')
+    images = []
+    
+    # Context from the first paragraph
+    story_context = paragraphs[0].strip() if paragraphs else ""
+
+    # Loop over paragraphs by step of 3, starting from the first
+    for i in range(1, len(paragraphs), 3):
+        # Combine three paragraphs for each image
+        combined_paragraph = paragraphs[i].strip()
+        if i + 1 < len(paragraphs):
+            combined_paragraph += " " + paragraphs[i + 1].strip()
+        if i + 2 < len(paragraphs):
+            combined_paragraph += " " + paragraphs[i + 2].strip()
+
+        if combined_paragraph:
+            prompt = f"Generate a realistic, emotionally evocative scene that embodies the themes of second chances and personal growth. Depict a modern, everyday environment—such as a park at sunrise, a softly lit classroom, or a welcoming community space—where individuals are engaging in moments of reflection, connection, or support. The scene should capture meaningful interactions or personal moments that emphasize the emotions involved in starting over. Use soft, natural colors like warm yellows, gentle blues, and calming greens to evoke hope and renewal. The overall style should be warm and approachable, with emotional depth that resonates with a teenage audience, reflecting the maturity and vulnerability of embracing a second chance. Full story context: {story_context} Current focus: {combined_paragraph}"
+            image_path = generate_image(prompt, images_directory)
+            images.append((combined_paragraph, image_path))
+
+    return images
+
+# Generate an image from a description using DALL-E
+def generate_image(description, images_directory):
+    global image_counter
+    # Generate filename within the provided directory
+    filename = f"generated_image_{image_counter}.jpg"
+    image_counter += 1
+    image_path = os.path.join(images_directory, filename)
+
+    # Fetch and save the image
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=description,
+        size="1024x1024",
+        quality="standard",
+        n=1
+    )
+    image_url = response.data[0].url
+    image_response = requests.get(image_url)
+    if image_response.status_code == 200:
+        with open(image_path, "wb") as image_file:
+            image_file.write(image_response.content)
+    return image_path
 
 # Function to save a story to a JSON file
 def save_story_to_json(story_data):
+    # Specify the directory for saved stories
     stories_dir = os.path.join(BASE_DIR, "saved_stories")
     json_file_path = os.path.join(stories_dir, "stories.json")
 
+    # Ensure the directory exists
     if not os.path.exists(stories_dir):
         os.makedirs(stories_dir)
 
     try:
+        # Load existing data
         if os.path.exists(json_file_path):
             with open(json_file_path, "r") as file:
                 data = json.load(file)
@@ -183,10 +233,6 @@ def save_story_to_json(story_data):
 def load_stories_from_json():
     stories_dir = os.path.join(BASE_DIR, "saved_stories")
     json_file_path = os.path.join(stories_dir, "stories.json")
-    
-    if not os.path.exists(stories_dir):
-        os.makedirs(stories_dir)
-
     try:
         if os.path.exists(json_file_path):
             with open(json_file_path, "r") as file:
@@ -197,8 +243,78 @@ def load_stories_from_json():
     except Exception as e:
         st.error(f"Failed to load stories: {e}")
         return []
+    
+# Generate a story with the specified parameters
+def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language):
+    prompt = (
+        f"Write an {story_type} that reflects personal growth, second chances, and overcoming challenges."
+        f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
+        f"The story is set in {setting}, focusing on the general experience of learning from mistakes and seeking redemption."
+        f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
+        f"The resolution is {resolution}, highlighting themes of personal responsibility, forgiveness, and community support."
+        f"The moral of the story is '{moral}', aimed at encouraging reflection and promoting empathy, understanding, and growth."
+        f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16. Avoid any content that could be potentially traumatising or unsuitable."
+        f"Keep the story length around {200 * length_minutes} words. Keep each paragraph to 4 sentences."
+        f"Display only the story."
+    )
 
-# Sidebar for input configuration
+    # Using the spinner to show processing state for story generation
+    with st.spinner(f"Generating your story..."):
+        story_text = chat_with_model(prompt, selected_language)
+    
+    if story_text:
+        st.success("Story generated successfully!")
+
+        # Prepare data to be saved
+        story_data = {
+            "story_type": story_type,
+            "main_character": main_character,
+            "setting": setting,
+            "conflict": conflict,
+            "resolution": resolution,
+            "moral": moral,
+            "length_minutes": length_minutes,
+            "text": story_text,
+            "include_illustrations": include_illustrations,
+            "include_audio": include_audio,
+            "language": selected_language
+        }
+        
+        # Save the story data
+        save_story_to_json(story_data)
+        
+        # Check if illustrations are included
+        if include_illustrations == "Yes":
+            with st.spinner("Generating illustrations..."):
+                paragraph_image_pairs = generate_images_from_story(story_text)
+            for paragraph, image_path in paragraph_image_pairs:
+                if image_path:  # Ensure the image was generated successfully
+                    # Display the image with plain text caption
+                    st.image(image_path, use_column_width=True)
+                    st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+            st.success("Illustrations generated successfully!")
+
+            # Generating speech without displaying the text
+            if include_audio == "Yes":
+                with st.spinner("Generating audio..."):
+                    generate_speech(story_text)
+                st.success("Audio generated successfully!")
+
+        else:
+            # Display each paragraph of the story text with dynamic font size
+            for paragraph in story_text.split('\n'):
+                st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+            
+            # Generating speech for the plain text
+            if include_audio == "Yes":
+                with st.spinner("Generating audio..."):
+                    generate_speech(story_text)
+                st.success("Audio generated successfully!")
+        
+    else:
+        st.error("The story generation did not return any text. Please try again.")
+
+# Sidebar for input configuration (shared across tabs)
 with st.sidebar:
     st.title("Configuration")
     selected_language = st.selectbox("Select Language:", languages)
@@ -206,7 +322,7 @@ with st.sidebar:
     include_audio = st.radio("Include Audio?", ["No", "Yes"])
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
-# Genre and main character configurations
+# Genre Configuration
 genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
 if genre_choice == "Manual":
     story_type = st.sidebar.selectbox("Select Genre", genres)
@@ -220,9 +336,9 @@ if character_choice == "Manual":
     main_character = st.sidebar.text_input("Enter Main Character's Name", "")
 else:
     main_character = characters
-    st.sidebar.write(f"Random Main Character: {main_character}")
+    st.sidebar.write(f"Random Main Character")
 
-# Main tabs for story generation
+# Main tabs
 tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 
 # Tab 1: Generate Random Story
@@ -234,7 +350,7 @@ with tab1:
         random_moral = 'a random moral lesson'
         generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_illustrations, include_audio, selected_language)
 
-# Tab 2: Custom Story Generation
+# Tab 2: Generate Story
 with tab2:
     setting = st.text_input("Where the story takes place:")
     conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
@@ -243,13 +359,14 @@ with tab2:
     if st.button("Generate Custom Story"):
         generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language)
 
-# Tab 3: Story Archive
+# Tab 3: Display Previously Saved Stories
 with tab3:
     st.write("(Story Archive)")
     previous_stories = load_stories_from_json()
     if previous_stories:
         for story in previous_stories:
             with st.expander(f"{story['story_type']} - {story['main_character']}"):
+                # Ensure each paragraph of saved stories is wrapped in dynamic font
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Genre: {story["story_type"]}, Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
