@@ -219,7 +219,7 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         # Save the story data
         save_story_to_json(story_data)
 
-        # Display the story
+        # Display the story only after it is generated
         display_story()
         
         # Generating speech for the plain text
@@ -235,6 +235,7 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
 def display_story():
     if 'generated_story' in st.session_state:
         story_text = st.session_state['generated_story']
+        # Display each paragraph of the story text with dynamic font size
         for paragraph in story_text.split('\n'):
             st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
 
@@ -292,9 +293,9 @@ with tab3:
                 # Ensure each paragraph of saved stories is wrapped in dynamic font
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Genre: {story["story_type"]}, Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}, Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Resolution: {story["resolution"]}, Moral: {story["moral"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Genre: {story['story_type']}, Main Character: {story['main_character']}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Setting: {story['setting']}, Conflict: {story['conflict']}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Resolution: {story['resolution']}, Moral: {story['moral']}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
 
