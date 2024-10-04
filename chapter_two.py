@@ -68,9 +68,9 @@ st.markdown("""
 # Initialise Azure OpenAI client
 def get_azure_openai_client():
     return AzureOpenAI(
-        azure_endpoint="https://epi-gpt-4-0125-preview.openai.azure.com/", 
+        azure_endpoint="AZURE_ENDPOINT", 
         api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # Ensure API key is stored securely in environment variables
-        api_version="2024-02-01"
+        api_version="AZURE_API_VERSION"
     )
 
 # Define the list of available genres and languages
