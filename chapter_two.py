@@ -70,10 +70,6 @@ client = AzureOpenAI(
     api_version=st.secrets["AZURE_API_VERSION"]
 )
 
-# Define the list of available genres and languages
-genres = [
-    "Inspirational Real-Life Stories"
-]
 languages = ['English', '中文', 'Melayu']
 
 characters = "Kai"
@@ -144,23 +140,20 @@ def chat_with_model(input_text, language):
 
 # Function to save a story to a JSON file
 def save_story_to_json(story_data):
-    # Specify the directory for saved stories
     stories_dir = os.path.join(BASE_DIR, "saved_stories")
     json_file_path = os.path.join(stories_dir, "stories.json")
 
-    # Ensure the directory exists
     if not os.path.exists(stories_dir):
         os.makedirs(stories_dir)
 
     try:
-        # Load existing data
         if os.path.exists(json_file_path):
             with open(json_file_path, "r") as file:
                 data = json.load(file)
             data.append(story_data)
         else:
             data = [story_data]
-        # Save updated data
+
         with open(json_file_path, "w") as file:
             json.dump(data, file, indent=4)
         st.success("Story saved successfully!")
@@ -182,10 +175,10 @@ def load_stories_from_json():
         st.error(f"Failed to load stories: {e}")
         return []
 
-# Generate a story with the specified parameters
-def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language):
+# Generate a story with the hardcoded theme of second chances for ex-offenders
+def generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language):
     prompt = (
-        f"Write an {story_type} that reflects personal growth, second chances, and overcoming challenges."
+        f"Write an inspirational real-life story that reflects personal growth, second chances, and overcoming challenges."
         f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
         f"The story is set in {setting}, focusing on the general experience of learning from mistakes and seeking redemption."
         f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
@@ -193,10 +186,8 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         f"The moral of the story is '{moral}', aimed at encouraging reflection and promoting empathy, understanding, and growth."
         f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16. Avoid any content that could be potentially traumatising or unsuitable."
         f"Keep the story length around {200 * length_minutes} words. Keep each paragraph to 4 sentences."
-        f"Display only the story."
     )
 
-    # Using the spinner to show processing state for story generation
     with st.spinner(f"Generating your story..."):
         story_text = chat_with_model(prompt, selected_language)
     
@@ -206,7 +197,6 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
 
         # Prepare data to be saved
         story_data = {
-            "story_type": story_type,
             "main_character": main_character,
             "setting": setting,
             "conflict": conflict,
@@ -218,15 +208,12 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
             "language": selected_language
         }
 
-        # Save the story data
         save_story_to_json(story_data)
 
-        # Generating speech for the plain text
         if include_audio == "Yes":
             with st.spinner("Generating audio..."):
                 generate_speech(story_text)
             st.success("Audio generated successfully!")
-        
     else:
         st.error("The story generation did not return any text. Please try again.")
 
@@ -234,7 +221,6 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
 def display_story():
     if 'generated_story' in st.session_state and st.session_state['generated_story']:
         story_text = st.session_state['generated_story']
-        # Display each paragraph of the story text with dynamic font size
         for paragraph in story_text.split('\n'):
             st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
 
@@ -244,14 +230,6 @@ with st.sidebar:
     selected_language = st.selectbox("Select Language:", languages)
     include_audio = st.radio("Include Audio?", ["No", "Yes"])
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
-
-# Genre Configuration
-genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
-if genre_choice == "Manual":
-    story_type = st.sidebar.selectbox("Select Genre", genres)
-else:
-    story_type = random.choice(genres)
-    st.sidebar.write(f"Random Genre: {story_type}")
 
 # Main Character Configuration
 character_choice = st.sidebar.radio("Main Character:", ["Random", "Manual"])
@@ -271,7 +249,7 @@ with tab1:
         random_conflict = 'random conflict'
         random_resolution = 'random resolution'
         random_moral = 'a random moral lesson'
-        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_audio, selected_language)
+        generate_story(main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_audio, selected_language)
 
 # Tab 2: Generate Story
 with tab2:
@@ -280,7 +258,7 @@ with tab2:
     resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
     moral = st.text_input("Moral of the story:")
     if st.button("Generate Custom Story"):
-        generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language)
+        generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language)
 
 # Tab 3: Display Previously Saved Stories
 with tab3:
@@ -288,13 +266,12 @@ with tab3:
     previous_stories = load_stories_from_json()
     if previous_stories:
         for story in previous_stories:
-            with st.expander(f"{story['story_type']} - {story['main_character']}"):
-                # Ensure each paragraph of saved stories is wrapped in dynamic font
+            with st.expander(f"{story['main_character']} - {story['setting']}"):
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Genre: {story['story_type']}, Main Character: {story['main_character']}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Setting: {story['setting']}, Conflict: {story['conflict']}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Resolution: {story['resolution']}, Moral: {story['moral']}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}, Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Resolution: {story["resolution"]}, Moral: {story["moral"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
 
