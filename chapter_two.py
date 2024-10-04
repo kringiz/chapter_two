@@ -32,12 +32,12 @@ st.markdown(
         background-attachment: local;
     }}
 
-    /* Adding larger semi-transparent white background to text widgets for better readability */
+    /* Increasing the size of the semi-transparent white background */
     .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {{
-        background-color: rgba(255, 255, 255, 0.85); /* Larger semi-transparent white */
-        border-radius: 10px; /* Larger rounded borders */
-        padding: 10px; /* Larger padding around text */
-        margin-bottom: 10px; /* Increased space between widgets */
+        background-color: rgba(255, 255, 255, 0.9); /* Larger semi-transparent white */
+        border-radius: 15px; /* More rounded borders */
+        padding: 20px; /* Larger padding around text */
+        margin-bottom: 15px; /* Increased space between widgets */
         color: #333333; /* Dark grey font color */
     }}
 
