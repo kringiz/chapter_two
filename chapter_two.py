@@ -54,6 +54,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Add app name with correct font size
+st.markdown(f'<div class="dynamic-font" style="text-align: center;"><h1>Chapter Two</h1></div>', unsafe_allow_html=True)
+
 # Add developer credit
 st.markdown("""
     <div class="dynamic-font" style="text-align: left;">
@@ -292,8 +295,9 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
                 st.success("Audio generated successfully!")
 
         else:
-            # Wrap the story text with dynamic font class
-            st.markdown(f'<div class="dynamic-font">{story_text}</div>', unsafe_allow_html=True)
+            # Display each paragraph of the story text with dynamic font size
+            for paragraph in story_text.split('\n'):
+                st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
             
             # Generating speech for the plain text
             if include_audio == "Yes":
