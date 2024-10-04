@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import requests
 from openai import OpenAI
-import openai
 import random
 from gtts import gTTS
 from PIL import Image
@@ -14,78 +13,54 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 # Set base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# # Load the banner image using a relative path
-# image_path = os.path.join(BASE_DIR, "banner2.png")
-# image = Image.open(image_path)
+# Font size slider for dynamic adjustment
+font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20)
 
-# # Display the banner image
-# st.image(image, use_column_width=True)
-
-# Combined HTML to inject custom CSS for the background, text backgrounds, font color, font sizes, and element styling
+# Inject custom CSS to adjust font size dynamically based on slider
 st.markdown(
-    """
+    f"""
     <style>
+    /* Dynamic font size adjustment for all text elements */
+    .dynamic-font {{
+        font-size: {font_size}px !important;
+    }}
+
     /* Change background image */
-    [data-testid="stAppViewContainer"] {
+    [data-testid="stAppViewContainer"] {{
         background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
         background-attachment: local;
-    }
+    }}
 
     /* Adding semi-transparent backgrounds to text widgets for better readability */
-    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {
+    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {{
         background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
         border-radius: 5px; /* Rounded borders */
         padding: 5px; /* Padding around text */
         margin-bottom: 5px; /* Space between widgets */
         color: #333333; /* Dark grey font color */
-        font-size: 25px; /* Increased font size for inputs and buttons */
-    }
-
-    /* Specific font size increases for the sidebar elements */
-    [data-testid="stSidebar"] .stTextInput, [data-testid="stSidebar"] .stSelectbox, [data-testid="stSidebar"] .stButton, [data-testid="stSidebar"] .stSlider {
-        font-size: 18px; /* Larger font size for sidebar elements */
-    }
-
-    /* You can customize font color specifically for titles and headers */
-    .stTitle, .stHeader, .big-font {
-        color: #2E4053; /* Example: darker shade of blue-grey */
-        font-size: 30px; /* Larger font size for titles */
-    }
+    }}
 
     /* Style for big-font class used for larger text */
-    .big-font {
-        font-size: 30px !important; /* Ensuring it overrides other styles */
+    .big-font {{
+        font-size: 30px !important;
         font-weight: bold;
-    }
+    }}
 
-    /* Style for medium-font class used for medium text */
-    .medium-font {
-        font-size: 20px !important; /* Ensuring it overrides other styles */
-        font-weight: bold;
-    }
-
-    /* Style for small-font class used for small text */
-    .small-font {
-        font-size: 12px !important; /* Ensuring it overrides other styles */
-        font-weight: bold;
-    }
-
-    /* Ensuring the rest of the container is also covered */
-    [data-testid="stSidebar"], [data-testid="stHeader"] {
-        background-color: transparent;
-    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
+# Add app name with correct font size
+st.markdown(f'<div class="dynamic-font" style="text-align: center;"><h1>Chapter Two</h1></div>', unsafe_allow_html=True)
+
 # Add developer credit
 st.markdown("""
-    <div style="text-align: left;">
-        <p class="small-font">Developed by Clarence Mun</p>
+    <div class="dynamic-font" style="text-align: left;">
+        <p>Developed by Clarence Mun</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -152,7 +127,7 @@ def generate_speech(text, filename='story.mp3', language='en', directory="audio"
 def chat_with_model(input_text, language):
     global message_history
     language_prefix = get_language_prefix(language)
-    full_input_text = f"{language_prefix}about {input_text}"
+    full_input_text = f"{language_prefix} about {input_text}"
     message_history.append({'role': 'user', 'content': full_input_text})
 
     # Call the GPT model using the client object and handle response correctly
@@ -279,8 +254,6 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         f"Display only the story."
     )
 
-
-    
     # Using the spinner to show processing state for story generation
     with st.spinner(f"Generating your story..."):
         story_text = chat_with_model(prompt, selected_language)
@@ -312,7 +285,9 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
                 paragraph_image_pairs = generate_images_from_story(story_text)
             for paragraph, image_path in paragraph_image_pairs:
                 if image_path:  # Ensure the image was generated successfully
-                    st.image(image_path, caption=paragraph)
+                    # Display the image with plain text caption
+                    st.image(image_path, use_column_width=True)
+                    st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
             st.success("Illustrations generated successfully!")
 
             # Generating speech without displaying the text
@@ -322,8 +297,10 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
                 st.success("Audio generated successfully!")
 
         else:
-            # Display the story text when no illustrations are included
-            st.write(story_text)
+            # Display each paragraph of the story text with dynamic font size
+            for paragraph in story_text.split('\n'):
+                st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+            
             # Generating speech for the plain text
             if include_audio == "Yes":
                 with st.spinner("Generating audio..."):
@@ -385,9 +362,11 @@ with tab3:
     if previous_stories:
         for story in previous_stories:
             with st.expander(f"{story['story_type']} - {story['main_character']}"):
-                st.write(f"Story: {story['text']}")
-                st.write(f"Genre: {story['story_type']}, Main Character: {story['main_character']}")
-                st.write(f"Setting: {story['setting']}, Conflict: {story['conflict']}")
-                st.write(f"Resolution: {story['resolution']}, Moral: {story['moral']}")
+                # Ensure each paragraph of saved stories is wrapped in dynamic font
+                for paragraph in story["text"].split('\n'):
+                    st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Genre: {story["story_type"]}, Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Setting: {story["setting"]}, Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Resolution: {story["resolution"]}, Moral: {story["moral"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
