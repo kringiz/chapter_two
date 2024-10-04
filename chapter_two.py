@@ -175,17 +175,18 @@ def load_stories_from_json():
         st.error(f"Failed to load stories: {e}")
         return []
 
-# Generate a story with the hardcoded theme of second chances for ex-offenders
+# Generate a story with the hardcoded theme of second chances for ex-offenders and their families
 def generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language):
     prompt = (
-        f"Write an inspirational real-life story that reflects personal growth, second chances, and overcoming challenges."
-        f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
-        f"The story is set in {setting}, focusing on the general experience of learning from mistakes and seeking redemption."
-        f"The conflict is {conflict}, but do not describe any graphic or explicit details. Focus on the emotional and psychological aspects of overcoming adversity."
-        f"The resolution is {resolution}, highlighting themes of personal responsibility, forgiveness, and community support."
-        f"The moral of the story is '{moral}', aimed at encouraging reflection and promoting empathy, understanding, and growth."
-        f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16. Avoid any content that could be potentially traumatising or unsuitable."
-        f"Keep the story length around {200 * length_minutes} words. Keep each paragraph to 4 sentences."
+        f"Write an inspirational real-life story about second chances and personal growth, focusing on an ex-offender and their family. "
+        f"The main character, {main_character}, remains anonymous, with no personal identity or background specifics revealed. "
+        f"The story is set in {setting}, within a family and community context. "
+        f"The conflict involves the emotional struggle of reintegrating into society after imprisonment, highlighting the stigma faced by the ex-offender's family and the challenges they endure. "
+        f"Include the internal and external conflicts the family faces—such as dealing with judgment from the community, the emotional toll on children and spouses, and the difficulties of rebuilding trust. "
+        f"The resolution focuses on rebuilding relationships, emphasising forgiveness, understanding, and healing within the family and the broader community. "
+        f"The moral of the story is '{moral}', promoting empathy, the power of second chances, and the strength of family unity in overcoming hardships. "
+        f"Ensure the story is suitable for secondary school students aged 13 to 16, avoiding any graphic or potentially traumatising content. "
+        f"The language complexity should be age-appropriate, and the story length should be around {200 * length_minutes} words, with each paragraph containing four sentences."
     )
 
     with st.spinner(f"Generating your story..."):
@@ -216,6 +217,7 @@ def generate_story(main_character, setting, conflict, resolution, moral, length_
             st.success("Audio generated successfully!")
     else:
         st.error("The story generation did not return any text. Please try again.")
+
 
 # Function to display the story
 def display_story():
