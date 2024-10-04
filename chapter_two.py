@@ -255,20 +255,24 @@ with tab2:
     st.markdown("### Custom Story Mode")
 
     # Add a field for main character name, default to "Kai" if none provided
-    main_character = st.text_input("Main character's name:", value="Kai")
+    main_character = st.text_input("Enter the main character's name (Default: Kai):", value="Kai")
 
     # Update the custom input fields to align with the second chances theme
-    setting = st.text_input("Where the story takes place (setting):", value="within a family and community context")
+    setting = st.text_input(
+        "Describe the setting of the story:",
+        value="within a family and community context",
+        help="Example: The family’s home, a community support center, or a family gathering."
+    )
     conflict = st.text_input(
-        "Describe the emotional conflict:",
-        help="Example: The stigma faced by the family, the emotional struggle of reintegrating into society, rebuilding trust."
+        "What is the emotional struggle or conflict?",
+        help="Example: The stigma faced by the family, the emotional struggle of reintegrating into society, or rebuilding trust within the family."
     )
     resolution = st.text_input(
         "How is the conflict resolved?",
         help="Example: The family rebuilds relationships, focuses on forgiveness, and gains support from the community."
     )
     moral = st.text_input(
-        "What is the moral of the story?",
+        "What is the lesson or moral of the story?",
         help="Example: The power of second chances, forgiveness, and the strength of family unity."
     )
 
