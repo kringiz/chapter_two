@@ -292,8 +292,9 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
                 st.success("Audio generated successfully!")
 
         else:
-            # Display the story text when no illustrations are included
-            st.write(story_text)
+            # Wrap the story text with dynamic font class
+            st.markdown(f'<div class="dynamic-font">{story_text}</div>', unsafe_allow_html=True)
+            
             # Generating speech for the plain text
             if include_audio == "Yes":
                 with st.spinner("Generating audio..."):
@@ -316,7 +317,7 @@ genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
 if genre_choice == "Manual":
     story_type = st.sidebar.selectbox("Select Genre", genres)
 else:
-    story_type = random.choice(genres)
+    story_type is random.choice(genres)
     st.sidebar.write(f"Random Genre: {story_type}")
 
 # Main Character Configuration
@@ -332,7 +333,6 @@ tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
 
 # Tab 1: Generate Random Story
 with tab1:
-    st.markdown('<div class="dynamic-font">Welcome to Rebirth! Here you can generate random stories.</div>', unsafe_allow_html=True)
     if st.button("Generate Random Story"):
         random_setting = 'Singapore'
         random_conflict = 'random conflict'
@@ -342,7 +342,6 @@ with tab1:
 
 # Tab 2: Generate Story
 with tab2:
-    st.markdown('<div class="dynamic-font">Custom story creation</div>', unsafe_allow_html=True)
     setting = st.text_input("Where the story takes place:")
     conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
     resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
