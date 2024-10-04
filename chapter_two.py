@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 from openai import AzureOpenAI
-import random
 from gtts import gTTS
 import json
 from datetime import datetime
@@ -239,20 +238,10 @@ with st.sidebar:
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
 # Main tabs
-tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
+tab1, tab2 = st.tabs(["Generate Story", "Reflect (Story Archive)"])
 
-# Tab 1: Generate Random Story
+# Tab 1: Generate Custom Story
 with tab1:
-    if st.button("Generate Random Story"):
-        random_setting = 'Singapore'
-        random_challenge = 'stigma faced by the family'
-        random_outcome = 'forgiveness and rebuilding family bonds'
-        random_lesson = 'the power of second chances and family unity'
-        generate_story("Kai", random_setting, random_challenge, random_outcome, random_lesson, length_minutes, include_audio, selected_language)
-
-# Tab 2: Generate Custom Story
-with tab2:
-    st.markdown("### Custom Story Mode")
 
     # Add a field for main character name, default to "Kai" if none provided
     main_character = st.text_input("Enter the main character's name (Default: Kai):", value="Kai")
@@ -277,11 +266,11 @@ with tab2:
     )
 
     # Trigger the story generation when the button is clicked
-    if st.button("Generate Custom Story"):
+    if st.button("Generate Story"):
         generate_story(main_character, setting, challenge, outcome, lesson, length_minutes, include_audio, selected_language)
 
-# Tab 3: Display Previously Saved Stories
-with tab3:
+# Tab 2: Display Previously Saved Stories
+with tab2:
     st.write("(Story Archive)")
     previous_stories = load_stories_from_json()
     if previous_stories:
