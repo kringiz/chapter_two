@@ -1,8 +1,7 @@
 import streamlit as st
 import os
-import requests
-from openai import AzureOpenAI
 import random
+from openai import AzureOpenAI
 from gtts import gTTS
 import json
 from datetime import datetime
@@ -16,70 +15,53 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Font size slider for dynamic adjustment
 font_size = st.sidebar.slider("Adjust Font Size", min_value=10, max_value=40, value=20)
 
-# Inject custom CSS to adjust font size dynamically based on slider
-st.markdown(
-    f"""
-    <style>
-    /* Dynamic font size adjustment for all text elements */
-    .dynamic-font {{
-        font-size: {font_size}px !important;
-    }}
+# Inject custom CSS for the dynamic font size
+dynamic_css = f"""
+<style>
+.dynamic-font {{
+    font-size: {font_size}px !important;
+}}
 
-    /* Change background image */
-    [data-testid="stAppViewContainer"] {{
-        background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-        background-attachment: local;
-    }}
+[data-testid="stAppViewContainer"] {{
+    background-image: url("https://github.com/clarencemun/GA_capstone_taler_swift/blob/main/wallpaper5.jpg?raw=true");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: local;
+}}
 
-    /* Adding semi-transparent backgrounds to text widgets for better readability */
-    .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {{
-        background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white */
-        border-radius: 5px; /* Rounded borders */
-        padding: 5px; /* Padding around text */
-        margin-bottom: 5px; /* Space between widgets */
-        color: #333333; /* Dark grey font color */
-    }}
+.stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .stMarkdown, .stTabs, .stRadio {{
+    background-color: rgba(255, 255, 255, 0.75);
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 5px;
+    color: #333333;
+}}
 
-    /* Style for big-font class used for larger text */
-    .big-font {{
-        font-size: 30px !important;
-        font-weight: bold;
-    }}
+.big-font {{
+    font-size: 30px !important;
+    font-weight: bold;
+}}
+</style>
+"""
 
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown(dynamic_css, unsafe_allow_html=True)
 
-# Add app name with correct font size
+# Add app name and developer credit with dynamic font size
 st.markdown(f'<div class="dynamic-font" style="text-align: center;"><h1>Chapter Two</h1></div>', unsafe_allow_html=True)
-
-# Add developer credit
-st.markdown("""
-    <div class="dynamic-font" style="text-align: left;">
-        <p>Developed by Clarence Mun</p>
-    </div>
-""", unsafe_allow_html=True)
+st.markdown(f'<div class="dynamic-font" style="text-align: left;"><p>Developed by Clarence Mun</p></div>', unsafe_allow_html=True)
 
 # Initialise Azure OpenAI client
 client = AzureOpenAI(
-        azure_endpoint=st.secrets["AZURE_ENDPOINT"], 
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # Ensure API key is stored securely in environment variables
-        api_version=st.secrets["AZURE_API_VERSION"]
-    )
+    azure_endpoint=st.secrets["AZURE_ENDPOINT"],
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    api_version=st.secrets["AZURE_API_VERSION"]
+)
 
 # Define the list of available genres and languages
-genres = [
-    "Inspirational Real-Life Stories"
-]
+genres = ["Inspirational Real-Life Stories"]
 languages = ['English', '中文', 'Melayu']
-
 characters = "Kai"
-
-# Initialise message history
 message_history = []
 
 # Get language prefix for story generation
@@ -107,7 +89,7 @@ def generate_speech(text, filename='story.mp3', language='en', directory="audio"
     # Check if the directory exists, and create it if it doesn't
     if not os.path.exists(directory):
         os.makedirs(directory)
-    
+
     # Generate a filename with a timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"story_{timestamp}.mp3"
@@ -116,7 +98,7 @@ def generate_speech(text, filename='story.mp3', language='en', directory="audio"
     # Save the converted audio
     myobj.save(file_path)
 
-    # Play the converted file using 'open' on macOS
+    # Play the converted file
     st.audio(file_path, format='audio/mp3', start_time=0)
 
 # Chat with the language model
@@ -130,7 +112,7 @@ def chat_with_model(input_text, language):
     response = client.chat.completions.create(
         model="gpt-4-0125-preview",  # Azure OpenAI model
         messages=message_history,
-        temperature=0.7  # Adjust temperature as needed
+        temperature=0.7
     )
 
     # Accessing the response using the updated object structure
@@ -184,7 +166,7 @@ def load_stories_from_json():
     except Exception as e:
         st.error(f"Failed to load stories: {e}")
         return []
-    
+
 # Generate a story with the specified parameters
 def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language):
     prompt = (
@@ -199,10 +181,9 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
         f"Display only the story."
     )
 
-    # Using the spinner to show processing state for story generation
     with st.spinner(f"Generating your story..."):
         story_text = chat_with_model(prompt, selected_language)
-    
+
     if story_text:
         st.success("Story generated successfully!")
 
@@ -219,20 +200,19 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
             "include_audio": include_audio,
             "language": selected_language
         }
-        
+
         # Save the story data
         save_story_to_json(story_data)
 
         # Display each paragraph of the story text with dynamic font size
         for paragraph in story_text.split('\n'):
             st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
-            
+
         # Generating speech for the plain text
         if include_audio == "Yes":
             with st.spinner("Generating audio..."):
                 generate_speech(story_text)
             st.success("Audio generated successfully!")
-        
     else:
         st.error("The story generation did not return any text. Please try again.")
 
@@ -287,7 +267,6 @@ with tab3:
     if previous_stories:
         for story in previous_stories:
             with st.expander(f"{story['story_type']} - {story['main_character']}"):
-                # Ensure each paragraph of saved stories is wrapped in dynamic font
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Genre: {story["story_type"]}, Main Character: {story["main_character"]}</div>', unsafe_allow_html=True)
