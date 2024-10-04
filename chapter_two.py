@@ -34,7 +34,7 @@ st.markdown(
 
     /* Increasing the size of the semi-transparent white background */
     .stTextInput, .stTextArea, .stSelectbox, .stButton, .stSlider, .big-font, .stMarkdown, .stTabs, .stRadio {{
-        background-color: rgba(255, 255, 255, 0.9); /* Larger semi-transparent white */
+        background-color: rgba(255, 255, 255, 0.75); /* Larger semi-transparent white */
         border-radius: 15px; /* More rounded borders */
         padding: 20px; /* Larger padding around text */
         margin-bottom: 15px; /* Increased space between widgets */
