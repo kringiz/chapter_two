@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import requests
-from azure.ai.openai import AzureOpenAI
+from openai import AzureOpenAI
 import random
 from gtts import gTTS
 from PIL import Image
