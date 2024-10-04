@@ -4,10 +4,10 @@ import requests
 from openai import AzureOpenAI
 import random
 from gtts import gTTS
-from PIL import Image
 import json
 from datetime import datetime
 
+# Set up Azure OpenAI API key and endpoint
 os.environ["AZURE_OPENAI_API_KEY"] = st.secrets["AZURE_OPENAI_API_KEY"]
 
 # Set base directory
@@ -64,7 +64,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Initialise OpenAI client
+# Initialise Azure OpenAI client
 client = AzureOpenAI(
         azure_endpoint=st.secrets["AZURE_ENDPOINT"], 
         api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # Ensure API key is stored securely in environment variables
@@ -79,16 +79,8 @@ languages = ['English', '中文', 'Melayu']
 
 characters = "Kai"
 
-# Initialise message history and image counter
+# Initialise message history
 message_history = []
-image_counter = 1
-
-# Generate a filename for saving an image
-def generate_filename():
-    global image_counter
-    filename = os.path.join(BASE_DIR, "images", f"generated_image_{image_counter}.jpg")
-    image_counter += 1
-    return filename
 
 # Get language prefix for story generation
 def get_language_prefix(language):
@@ -136,7 +128,7 @@ def chat_with_model(input_text, language):
 
     # Call the GPT model using the client object and handle response correctly
     response = client.chat.completions.create(
-        model="gpt-4-0125-preview",  # You can replace it with "gpt-4-1106-preview" if using GPT-4
+        model="gpt-4-0125-preview",  # Azure OpenAI model
         messages=message_history,
         temperature=0.7  # Adjust temperature as needed
     )
@@ -152,57 +144,6 @@ def chat_with_model(input_text, language):
             story_text += msg['content']
 
     return story_text
-
-# Generate images from the story
-def generate_images_from_story(story_text):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    images_directory = os.path.join(BASE_DIR, "images", timestamp)
-    os.makedirs(images_directory, exist_ok=True)
-
-    paragraphs = story_text.split('\n\n')
-    images = []
-    
-    # Context from the first paragraph
-    story_context = paragraphs[0].strip() if paragraphs else ""
-
-    # Loop over paragraphs by step of 3, starting from the first
-    for i in range(1, len(paragraphs), 3):
-        # Combine three paragraphs for each image
-        combined_paragraph = paragraphs[i].strip()
-        if i + 1 < len(paragraphs):
-            combined_paragraph += " " + paragraphs[i + 1].strip()
-        if i + 2 < len(paragraphs):
-            combined_paragraph += " " + paragraphs[i + 2].strip()
-
-        if combined_paragraph:
-            prompt = f"Generate a realistic, emotionally evocative scene that embodies the themes of second chances and personal growth. Depict a modern, everyday environment—such as a park at sunrise, a softly lit classroom, or a welcoming community space—where individuals are engaging in moments of reflection, connection, or support. The scene should capture meaningful interactions or personal moments that emphasize the emotions involved in starting over. Use soft, natural colors like warm yellows, gentle blues, and calming greens to evoke hope and renewal. The overall style should be warm and approachable, with emotional depth that resonates with a teenage audience, reflecting the maturity and vulnerability of embracing a second chance. Full story context: {story_context} Current focus: {combined_paragraph}"
-            image_path = generate_image(prompt, images_directory)
-            images.append((combined_paragraph, image_path))
-
-    return images
-
-# Generate an image from a description using DALL-E
-def generate_image(description, images_directory):
-    global image_counter
-    # Generate filename within the provided directory
-    filename = f"generated_image_{image_counter}.jpg"
-    image_counter += 1
-    image_path = os.path.join(images_directory, filename)
-
-    # Fetch and save the image
-    response = client.images.generate(
-        model="dall-e-3",
-        prompt=description,
-        size="1024x1024",
-        quality="standard",
-        n=1
-    )
-    image_url = response.data[0].url
-    image_response = requests.get(image_url)
-    if image_response.status_code == 200:
-        with open(image_path, "wb") as image_file:
-            image_file.write(image_response.content)
-    return image_path
 
 # Function to save a story to a JSON file
 def save_story_to_json(story_data):
@@ -245,7 +186,7 @@ def load_stories_from_json():
         return []
     
 # Generate a story with the specified parameters
-def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language):
+def generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language):
     prompt = (
         f"Write an {story_type} that reflects personal growth, second chances, and overcoming challenges."
         f"The main character, {main_character}, is anonymous, and their personal identity or background specifics should not be revealed."
@@ -275,41 +216,22 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
             "moral": moral,
             "length_minutes": length_minutes,
             "text": story_text,
-            "include_illustrations": include_illustrations,
             "include_audio": include_audio,
             "language": selected_language
         }
         
         # Save the story data
         save_story_to_json(story_data)
-        
-        # Check if illustrations are included
-        if include_illustrations == "Yes":
-            with st.spinner("Generating illustrations..."):
-                paragraph_image_pairs = generate_images_from_story(story_text)
-            for paragraph, image_path in paragraph_image_pairs:
-                if image_path:  # Ensure the image was generated successfully
-                    # Display the image with plain text caption
-                    st.image(image_path, use_column_width=True)
-                    st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
-            st.success("Illustrations generated successfully!")
 
-            # Generating speech without displaying the text
-            if include_audio == "Yes":
-                with st.spinner("Generating audio..."):
-                    generate_speech(story_text)
-                st.success("Audio generated successfully!")
-
-        else:
-            # Display each paragraph of the story text with dynamic font size
-            for paragraph in story_text.split('\n'):
-                st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+        # Display each paragraph of the story text with dynamic font size
+        for paragraph in story_text.split('\n'):
+            st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
             
-            # Generating speech for the plain text
-            if include_audio == "Yes":
-                with st.spinner("Generating audio..."):
-                    generate_speech(story_text)
-                st.success("Audio generated successfully!")
+        # Generating speech for the plain text
+        if include_audio == "Yes":
+            with st.spinner("Generating audio..."):
+                generate_speech(story_text)
+            st.success("Audio generated successfully!")
         
     else:
         st.error("The story generation did not return any text. Please try again.")
@@ -318,7 +240,6 @@ def generate_story(story_type, main_character, setting, conflict, resolution, mo
 with st.sidebar:
     st.title("Configuration")
     selected_language = st.selectbox("Select Language:", languages)
-    include_illustrations = st.radio("Include Illustrations?", ["No", "Yes"])
     include_audio = st.radio("Include Audio?", ["No", "Yes"])
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
@@ -348,7 +269,7 @@ with tab1:
         random_conflict = 'random conflict'
         random_resolution = 'random resolution'
         random_moral = 'a random moral lesson'
-        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_illustrations, include_audio, selected_language)
+        generate_story(story_type, main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_audio, selected_language)
 
 # Tab 2: Generate Story
 with tab2:
@@ -357,7 +278,7 @@ with tab2:
     resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
     moral = st.text_input("Moral of the story:")
     if st.button("Generate Custom Story"):
-        generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_illustrations, include_audio, selected_language)
+        generate_story(story_type, main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language)
 
 # Tab 3: Display Previously Saved Stories
 with tab3:
