@@ -237,7 +237,6 @@ if character_choice == "Manual":
     main_character = st.sidebar.text_input("Enter Main Character's Name", "")
 else:
     main_character = characters
-    st.sidebar.write(f"Random Main Character")
 
 # Main tabs
 tab1, tab2, tab3 = st.tabs(["Rebirth", "Renew", "Reflect"])
