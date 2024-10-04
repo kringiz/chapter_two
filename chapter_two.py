@@ -252,12 +252,28 @@ with tab1:
         random_moral = 'a random moral lesson'
         generate_story(main_character, random_setting, random_conflict, random_resolution, random_moral, length_minutes, include_audio, selected_language)
 
-# Tab 2: Generate Story
+# Tab 2: Generate Custom Story
 with tab2:
-    setting = st.text_input("Where the story takes place:")
-    conflict = st.text_input("Main plot challenge:", help="Describe the central conflict or challenge that drives the story.")
-    resolution = st.text_input("Story Climax and Conclusion:", help="Explain how the plot reaches its peak and resolves.")
-    moral = st.text_input("Moral of the story:")
+    
+    # Update the custom input fields to align with the second chances theme
+    setting = st.text_input("Where the story takes place (setting):", value="within a family and community context")
+    conflict = st.text_input(
+        "Describe the emotional conflict:",
+        help="Example: The stigma faced by the family, the emotional struggle of reintegrating into society, rebuilding trust."
+    )
+    resolution = st.text_input(
+        "How is the conflict resolved?",
+        help="Example: The family rebuilds relationships, focuses on forgiveness, and gains support from the community."
+    )
+    moral = st.text_input(
+        "What is the moral of the story?",
+        help="Example: The power of second chances, forgiveness, and the strength of family unity."
+    )
+    
+    # Customise the main character's name, or let it remain anonymous
+    main_character = st.text_input("Enter Main Character's Name (leave blank for anonymous):", value="anonymous")
+    
+    # Trigger the story generation when the button is clicked
     if st.button("Generate Custom Story"):
         generate_story(main_character, setting, conflict, resolution, moral, length_minutes, include_audio, selected_language)
 
