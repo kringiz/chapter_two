@@ -8,7 +8,7 @@ from PIL import Image
 import json
 from datetime import datetime
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+os.environ["AZURE_OPENAI_API_KEY"] = st.secrets["AZURE_OPENAI_API_KEY"]
 
 # Set base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
