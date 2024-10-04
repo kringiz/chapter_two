@@ -317,7 +317,7 @@ genre_choice = st.sidebar.radio("Genre:", ["Random", "Manual"])
 if genre_choice == "Manual":
     story_type = st.sidebar.selectbox("Select Genre", genres)
 else:
-    story_type is random.choice(genres)
+    story_type = random.choice(genres)
     st.sidebar.write(f"Random Genre: {story_type}")
 
 # Main Character Configuration
