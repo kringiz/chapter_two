@@ -248,7 +248,7 @@ with tab1:
     st.markdown("### Generate Your Story")
 
     # Story Input Parameters
-    name = st.text_input("Enter the ex-offender's name", value="Kai")
+    name = st.text_input("Enter the main character's name", value="Kai")
     setting = st.text_input("Story setting (e.g. Family home, community)", value="family home and community")
     conflict = st.text_input("Main conflict (e.g. Stigma, emotional struggle)", value="the stigma faced by the family and the emotional struggle of reintegration")
     rebuilding = st.text_input("Rebuilding process (e.g. rebuilding relationships, gaining trust)", value="rebuilding relationships and trust")
