@@ -79,6 +79,10 @@ if 'message_history' not in st.session_state:
 if 'generated_story' not in st.session_state:
     st.session_state['generated_story'] = None
 
+# Initialize session state for stories
+if 'stories' not in st.session_state:
+    st.session_state['stories'] = []
+
 # Get language prefix for story generation
 def get_language_prefix(language):
     if language == '中文':
@@ -117,68 +121,28 @@ def generate_speech(text, filename='story.mp3', language='en', directory="audio"
     st.audio(file_path, format='audio/mp3', start_time=0)
 
 # Chat with the language model
-def chat_with_model(input_text, language):
+def chat_with_model(input_text):
     message_history = st.session_state['message_history']
-    language_prefix = get_language_prefix(language)
-    full_input_text = f"{language_prefix} about {input_text}"
-    message_history.append({'role': 'user', 'content': full_input_text})
+    message_history.append({'role': 'user', 'content': input_text})
 
-    # Call the GPT model using the client object and handle response correctly
     response = client.chat.completions.create(
-        model="gpt-4-0125-preview",  # Azure OpenAI model
+        model="gpt-4-0125-preview",
         messages=message_history,
-        temperature=0.7  # Adjust temperature as needed
+        temperature=0.7
     )
 
-    # Accessing the response using the updated object structure
     response_text = response.choices[0].message.content
     message_history.append({'role': 'assistant', 'content': response_text})
-
     st.session_state['message_history'] = message_history
     return response_text
 
-# Function to save a story to a JSON file
-def save_story_to_json(story_data):
-    # Specify the directory for saved stories
-    stories_dir = os.path.join(BASE_DIR, "saved_stories")
-    json_file_path = os.path.join(stories_dir, "stories.json")
-
-    # Ensure the directory exists
-    if not os.path.exists(stories_dir):
-        os.makedirs(stories_dir)
-
-    try:
-        # Load existing data
-        if os.path.exists(json_file_path):
-            with open(json_file_path, "r") as file:
-                data = json.load(file)
-            data.append(story_data)
-        else:
-            data = [story_data]
-        # Save updated data
-        with open(json_file_path, "w") as file:
-            json.dump(data, file, indent=4)
-        st.success("Story saved successfully!")
-    except Exception as e:
-        st.error(f"Failed to save story: {e}")
-
-# Function to load all stories from a JSON file
-def load_stories_from_json():
-    stories_dir = os.path.join(BASE_DIR, "saved_stories")
-    json_file_path = os.path.join(stories_dir, "stories.json")
-    try:
-        if os.path.exists(json_file_path):
-            with open(json_file_path, "r") as file:
-                data = json.load(file)
-            return data
-        else:
-            return []
-    except Exception as e:
-        st.error(f"Failed to load stories: {e}")
-        return []
+# Function to save a story to session state
+def save_story(story_data):
+    st.session_state['stories'].append(story_data)
+    st.success("Story saved successfully!")
 
 # Generate a story with the specified parameters
-def generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style, include_audio, selected_language):
+def generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style):
     prompt = (
         f"Write an inspirational real-life story about an ex-offender named {name}, who is rebuilding their life after a period of incarceration."
         f"The story is set in {setting}, with a focus on their family and community."
@@ -190,15 +154,12 @@ def generate_story(name, setting, conflict, rebuilding, support, emotional_tone,
         f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16."
     )
 
-    # Using the spinner to show processing state for story generation
     with st.spinner(f"Generating your story..."):
-        story_text = chat_with_model(prompt, selected_language)
+        story_text = chat_with_model(prompt)
     
     if story_text:
         st.session_state['generated_story'] = story_text
-        st.success("Story generated successfully!")
 
-        # Prepare data to be saved
         story_data = {
             "name": name,
             "setting": setting,
@@ -208,20 +169,10 @@ def generate_story(name, setting, conflict, rebuilding, support, emotional_tone,
             "emotional_tone": emotional_tone,
             "timeframe": timeframe,
             "resolution_style": resolution_style,
-            "text": story_text,
-            "include_audio": include_audio,
-            "language": selected_language
+            "text": story_text
         }
 
-        # Save the story data
-        save_story_to_json(story_data)
-
-        # Generating speech for the plain text
-        if include_audio == "Yes":
-            with st.spinner("Generating audio..."):
-                generate_speech(story_text)
-            st.success("Audio generated successfully!")
-        
+        save_story(story_data)
     else:
         st.error("The story generation did not return any text. Please try again.")
 
@@ -236,8 +187,6 @@ def display_story():
 # Sidebar for input configuration (shared across tabs)
 with st.sidebar:
     st.title("Configuration")
-    selected_language = st.selectbox("Select Language:", languages)
-    include_audio = st.radio("Include Audio?", ["No", "Yes"])
     length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
 # Main tabs
@@ -258,21 +207,20 @@ with tab1:
     resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0)
 
     if st.button("Generate Story"):
-        generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style, include_audio, selected_language)
+        generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style)
 
 # Tab 2: Display Previously Saved Stories (Reflect)
 with tab2:
     st.write("(Story Archive)")
-    previous_stories = load_stories_from_json()
-    if previous_stories:
-        for story in previous_stories:
+    if st.session_state['stories']:
+        for story in st.session_state['stories']:
             with st.expander(f"{story['name']} - {story['setting']}"):
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Conflict: {story['conflict']}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Rebuilding: {story['rebuilding']}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Support: {story['support']}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Resolution Style: {story['resolution_style']}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Conflict: {story["conflict"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Rebuilding: {story["rebuilding"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Support: {story["support"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Resolution Style: {story["resolution_style"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
 
