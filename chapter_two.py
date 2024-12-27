@@ -149,11 +149,11 @@ with st.sidebar:
     st.title("Configuration")
 
 # Main tabs
-tab1, tab2 = st.tabs(["Rebirth", "Reflect"])
+tab1, tab2, tab3 = st.tabs(["Forgive Me", "Forgive You", "Archive"])
 
 # Tab 1: Custom Story Generator (Rebirth)
 with tab1:
-    st.markdown("### Generate Your Story")
+    st.markdown("### Generate Your Story (First Person)")
 
     # Story Input Parameters
     name = st.text_input("Enter the main character's name", value="Kai")
@@ -169,8 +169,26 @@ with tab1:
         generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style)
         display_story()
 
-# Tab 2: Display Previously Saved Stories (Reflect)
+# Add new third person story tab
 with tab2:
+    st.markdown("### Generate Their Story (Third Person)")
+    
+    # Story Input Parameters (identical fields)
+    name = st.text_input("Enter the main character's name", value="Kai", key="name_third")
+    setting = st.text_input("Story setting (e.g. Family home, community)", value="family home and community", key="setting_third")
+    conflict = st.text_input("Main conflict (e.g. Stigma, emotional struggle)", value="the stigma faced by the family and the emotional struggle of reintegration", key="conflict_third")
+    rebuilding = st.text_input("Rebuilding process (e.g. rebuilding relationships, gaining trust)", value="rebuilding relationships and trust", key="rebuilding_third")
+    support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3, key="support_third")
+    emotional_tone = st.selectbox("Emotional tone", ["Hopeful", "Bittersweet", "Reflective", "Determined"], index=0, key="emotion_third")
+    timeframe = st.selectbox("Reintegration timeframe", ["Just returned", "A few months", "A year", "Several years"], index=0, key="time_third")
+    resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0, key="resolution_third")
+
+    if st.button("Generate Story", key="generate_third"):
+        generate_story_third_person(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style)
+        display_story()
+
+# Tab 2: Display Previously Saved Stories (Reflect)
+with tab3:
     st.write("(Story Archive)")
     if st.session_state['stories']:
         for story in st.session_state['stories']:
@@ -183,3 +201,39 @@ with tab2:
                 st.markdown(f'<div class="dynamic-font">Resolution Style: {story["resolution_style"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
+
+# Add new function for third-person story generation
+def generate_story_third_person(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style):
+    prompt = (
+        f"Write an inspirational story from a third-person perspective about {name}, an ex-offender rebuilding their life after incarceration. "
+        f"Set in {setting}, the narrative should focus on their family and community relationships. "
+        f"Explore how {name} faces {conflict}, showing the emotional struggles both they and their family experience. "
+        f"Describe their journey of {rebuilding}, highlighting the role of {support} in their recovery. "
+        f"Maintain a {emotional_tone} tone throughout the narrative. "
+        f"The story takes place {timeframe} after their return home. "
+        f"Conclude with {resolution_style}, emphasizing themes of second chances, forgiveness, and family reconciliation. "
+        f"Keep the content and language suitable for readers aged 13-16."
+    )
+
+    with st.spinner(f"Generating your story..."):
+        story_text = chat_with_model(prompt)
+    
+    if story_text:
+        st.session_state['generated_story'] = story_text
+
+        story_data = {
+            "name": name,
+            "setting": setting,
+            "conflict": conflict,
+            "rebuilding": rebuilding,
+            "support": support,
+            "emotional_tone": emotional_tone,
+            "timeframe": timeframe,
+            "resolution_style": resolution_style,
+            "perspective": "third-person",
+            "text": story_text
+        }
+
+        save_story(story_data)
+    else:
+        st.error("The story generation did not return any text. Please try again.")
