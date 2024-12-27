@@ -182,6 +182,3 @@ with tab2:
                 st.markdown(f'<div class="dynamic-font">Resolution Style: {story["resolution_style"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
-
-# Display the story if it exists in session state
-display_story()
