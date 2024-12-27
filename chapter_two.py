@@ -110,12 +110,13 @@ def display_story():
             st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
 
 # Generate a story with the specified parameters
-def generate_story(name, setting, second_chance, rebuilding, support, story_style, timeframe, resolution_style):
+def generate_story(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style):
     prompt = (
         f"Write an inspirational real-life story in first-person perspective about an ex-offender named {name}, who is rebuilding their life after incarceration. "
         f"The story is set in {setting}, with a focus on their family and community. "
-        f"The story centers on {second_chance}, and how this opportunity impacts the ex-offender and their family. "
-        f"The rebuilding process involves {rebuilding} and is influenced by {support}. "
+        f"The story centers on {second_chance}, and how this opportunity became a turning point. "
+        f"Show how this journey has {impact} throughout the narrative. "
+        f"The support from {support} plays a crucial role in the story. "
         f"Write the story in a {story_style} style, focusing on the character's inner journey and growth. "
         f"The ex-offender has been reintegrating into their family for {timeframe}. "
         f"The story should conclude with {resolution_style}, emphasizing the power of second chances, forgiveness, and family unity. "
@@ -132,7 +133,7 @@ def generate_story(name, setting, second_chance, rebuilding, support, story_styl
             "name": name,
             "setting": setting,
             "second_chance": second_chance,
-            "rebuilding": rebuilding,
+            "impact": impact,
             "support": support,
             "story_style": story_style,
             "timeframe": timeframe,
@@ -146,12 +147,13 @@ def generate_story(name, setting, second_chance, rebuilding, support, story_styl
         st.error("The story generation did not return any text. Please try again.")
 
 # Add new function for third-person story generation
-def generate_story_third_person(name, setting, second_chance, rebuilding, support, story_style, timeframe, resolution_style):
+def generate_story_third_person(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style):
     prompt = (
         f"Write an inspirational story from a third-person perspective about {name}, an ex-offender rebuilding their life after incarceration. "
         f"Set in {setting}, the narrative should focus on their family and community relationships. "
-        f"The story centers on {second_chance}, and how this opportunity transforms {name}'s life and affects their family. "
-        f"Describe their journey of {rebuilding}, highlighting the role of {support} in their recovery. "
+        f"The story centers on {second_chance}, and how this opportunity transforms {name}'s life. "
+        f"Explore how this journey has {impact} throughout the narrative. "
+        f"The support from {support} plays a crucial role in the story. "
         f"Write the story in a {story_style} style, focusing on the character's inner journey and growth. "
         f"The story takes place {timeframe} after their return home. "
         f"Conclude with {resolution_style}, emphasizing themes of second chances, forgiveness, and family reconciliation. "
@@ -168,7 +170,7 @@ def generate_story_third_person(name, setting, second_chance, rebuilding, suppor
             "name": name,
             "setting": setting,
             "second_chance": second_chance,
-            "rebuilding": rebuilding,
+            "impact": impact,
             "support": support,
             "story_style": story_style,
             "timeframe": timeframe,
@@ -196,7 +198,7 @@ with tab1:
     name = st.text_input("Enter the main character's name", value="Kai")
     setting = st.text_input("Story setting (e.g. Family home, community)", value="family home and community")
     second_chance = st.text_input("Second chance offered (e.g. Job opportunity by an empathetic employer)", value="a job opportunity offered by a former teacher")
-    rebuilding = st.text_input("Rebuilding process (e.g. rebuilding relationships, gaining trust)", value="rebuilding relationships and trust")
+    impact = st.text_input("Impact on relationships (e.g. Family support, community acceptance)", value="strengthening family bonds and rebuilding trust with neighbors", key="impact_first")
     support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3)
     story_style = st.selectbox("Style of story", [
         "Reflective and thoughtful",
@@ -210,7 +212,7 @@ with tab1:
     resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0)
 
     if st.button("Generate Story"):
-        generate_story(name, setting, second_chance, rebuilding, support, story_style, timeframe, resolution_style)
+        generate_story(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style)
         display_story()
 
 # Add new third person story tab
@@ -221,7 +223,7 @@ with tab2:
     name = st.text_input("Enter the main character's name", value="Kai", key="name_third")
     setting = st.text_input("Story setting (e.g. Family home, community)", value="family home and community", key="setting_third")
     second_chance = st.text_input("Second chance offered (e.g. Job opportunity by an empathetic employer)", value="a job opportunity offered by a former teacher", key="second_chance_third")
-    rebuilding = st.text_input("Rebuilding process (e.g. rebuilding relationships, gaining trust)", value="rebuilding relationships and trust", key="rebuilding_third")
+    impact = st.text_input("Impact on relationships (e.g. Family support, community acceptance)", value="strengthening family bonds and rebuilding trust with neighbors", key="impact_third")
     support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3, key="support_third")
     story_style = st.selectbox("Style of story", [
         "Reflective and thoughtful",
@@ -235,7 +237,7 @@ with tab2:
     resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0, key="resolution_third")
 
     if st.button("Generate Story", key="generate_third"):
-        generate_story_third_person(name, setting, second_chance, rebuilding, support, story_style, timeframe, resolution_style)
+        generate_story_third_person(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style)
         display_story()
 
 # Tab 2: Display Previously Saved Stories (Reflect)
