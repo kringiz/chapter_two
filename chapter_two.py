@@ -218,24 +218,24 @@ with tab1:
 
 # Add new third person story tab
 with tab2:
-    st.markdown("### Generate Their Story (Third Person)")
+    st.markdown("### Generate Their Story (Third Person - From Someone They Hurt)")
     
-    # Story Input Parameters (identical fields)
-    name = st.text_input("Enter the main character's name", value="Kai", key="name_third")
-    setting = st.text_input("Story setting (e.g. Family home, community)", value="family home and community", key="setting_third")
-    second_chance = st.text_input("Second chance offered (e.g. Job opportunity by an empathetic employer)", value="a job opportunity offered by a former teacher", key="second_chance_third")
-    impact = st.text_input("Impact on relationships (e.g. Family support, community acceptance)", value="strengthening family bonds and rebuilding trust with neighbors", key="impact_third")
-    support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3, key="support_third")
-    story_style = st.selectbox("Style of story", [
-        "Reflective and thoughtful",
-        "Journey of redemption",
-        "Family reconciliation",
-        "Community healing",
-        "Personal transformation",
-        "Hope and resilience"
+    # Story Input Parameters
+    name = st.text_input("Enter the name of the person who hurt you", value="Kai", key="name_third")
+    setting = st.text_input("Story setting (e.g. Shared neighborhood, family gathering)", value="our shared community", key="setting_third")
+    second_chance = st.text_input("What second chance are you offering them? (e.g. Trusting them with responsibilities, including them in family events)", value="inviting them back into our family gatherings", key="second_chance_third")
+    impact = st.text_input("How has this affected you and others? (e.g. Mixed feelings in the family, community divided)", value="healing old wounds while being cautiously hopeful", key="impact_third")
+    support = st.selectbox("What helps you through this process?", ["Personal therapy", "Family counseling", "Religious faith", "Support groups", "Community mediation"], index=0, key="support_third")
+    story_style = st.selectbox("How would you describe this journey?", [
+        "Healing from betrayal",
+        "Learning to trust again",
+        "Path to reconciliation",
+        "Courage to forgive",
+        "Finding hope again",
+        "Rebuilding relationships"
     ], index=0, key="story_style_third")
-    timeframe = st.selectbox("Reintegration timeframe", ["Just returned", "A few months", "A year", "Several years"], index=0, key="time_third")
-    resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0, key="resolution_third")
+    timeframe = st.selectbox("How long since you started rebuilding trust?", ["Just beginning", "A few uncertain months", "One year of small steps", "Years of gradual progress"], index=0, key="time_third")
+    resolution_style = st.selectbox("Where are you in this journey?", ["Beginning to trust", "Taking it day by day", "Still uncertain but hopeful"], index=0, key="resolution_third")
 
     if st.button("Generate Story", key="generate_third"):
         generate_story_third_person(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style)
