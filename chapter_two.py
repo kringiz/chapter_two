@@ -223,7 +223,14 @@ with tab2:
     conflict = st.text_input("Main conflict (e.g. Stigma, emotional struggle)", value="the stigma faced by the family and the emotional struggle of reintegration", key="conflict_third")
     rebuilding = st.text_input("Rebuilding process (e.g. rebuilding relationships, gaining trust)", value="rebuilding relationships and trust", key="rebuilding_third")
     support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3, key="support_third")
-    emotional_tone = st.selectbox("Emotional tone", ["Hopeful", "Bittersweet", "Reflective", "Determined"], index=0, key="emotion_third")
+    story_style = st.selectbox("Style of story", [
+        "Reflective and thoughtful",
+        "Journey of redemption",
+        "Family reconciliation",
+        "Community healing",
+        "Personal transformation",
+        "Hope and resilience"
+    ], index=0)
     timeframe = st.selectbox("Reintegration timeframe", ["Just returned", "A few months", "A year", "Several years"], index=0, key="time_third")
     resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0, key="resolution_third")
 
