@@ -167,6 +167,7 @@ with tab1:
 
     if st.button("Generate Story"):
         generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style)
+        display_story()
 
 # Tab 2: Display Previously Saved Stories (Reflect)
 with tab2:
