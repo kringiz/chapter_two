@@ -110,16 +110,16 @@ def display_story():
             st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
 
 # Generate a story with the specified parameters
-def generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style):
+def generate_story(name, setting, conflict, rebuilding, support, story_style, timeframe, resolution_style):
     prompt = (
-        f"Write an inspirational real-life story in first-person perspective about an ex-offender named {name}, who is rebuilding their life after a period of incarceration."
-        f"The story is set in {setting}, with a focus on their family and community."
-        f"The main conflict centers on {conflict} and the emotional struggles of the ex-offender and their family."
-        f"The rebuilding process involves {rebuilding} and is influenced by {support}."
-        f"The emotional tone of the story should be {emotional_tone}."
-        f"The ex-offender has been reintegrating into their family for {timeframe}."
-        f"The story should conclude with {resolution_style}, emphasizing the power of second chances, forgiveness, and family unity."
-        f"Ensure the content of the story and language complexity are age-appropriate for students aged 13 to 16."
+        f"Write an inspirational real-life story in first-person perspective about an ex-offender named {name}, who is rebuilding their life after incarceration. "
+        f"The story is set in {setting}, with a focus on their family and community. "
+        f"The main conflict centers on {conflict} and the emotional struggles of the ex-offender and their family. "
+        f"The rebuilding process involves {rebuilding} and is influenced by {support}. "
+        f"Write the story in a {story_style} style, focusing on the character's inner journey and growth. "
+        f"The ex-offender has been reintegrating into their family for {timeframe}. "
+        f"The story should conclude with {resolution_style}, emphasizing the power of second chances, forgiveness, and family unity. "
+        f"Ensure the content and language complexity are age-appropriate for students aged 13 to 16."
     )
 
     with st.spinner(f"Generating your story..."):
@@ -134,7 +134,7 @@ def generate_story(name, setting, conflict, rebuilding, support, emotional_tone,
             "conflict": conflict,
             "rebuilding": rebuilding,
             "support": support,
-            "emotional_tone": emotional_tone,
+            "story_style": story_style,
             "timeframe": timeframe,
             "resolution_style": resolution_style,
             "perspective": "first-person",
@@ -146,13 +146,13 @@ def generate_story(name, setting, conflict, rebuilding, support, emotional_tone,
         st.error("The story generation did not return any text. Please try again.")
 
 # Add new function for third-person story generation
-def generate_story_third_person(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style):
+def generate_story_third_person(name, setting, conflict, rebuilding, support, story_style, timeframe, resolution_style):
     prompt = (
         f"Write an inspirational story from a third-person perspective about {name}, an ex-offender rebuilding their life after incarceration. "
         f"Set in {setting}, the narrative should focus on their family and community relationships. "
         f"Explore how {name} faces {conflict}, showing the emotional struggles both they and their family experience. "
         f"Describe their journey of {rebuilding}, highlighting the role of {support} in their recovery. "
-        f"Maintain a {emotional_tone} tone throughout the narrative. "
+        f"Write the story in a {story_style} style, focusing on the character's inner journey and growth. "
         f"The story takes place {timeframe} after their return home. "
         f"Conclude with {resolution_style}, emphasizing themes of second chances, forgiveness, and family reconciliation. "
         f"Keep the content and language suitable for readers aged 13-16."
@@ -170,7 +170,7 @@ def generate_story_third_person(name, setting, conflict, rebuilding, support, em
             "conflict": conflict,
             "rebuilding": rebuilding,
             "support": support,
-            "emotional_tone": emotional_tone,
+            "story_style": story_style,
             "timeframe": timeframe,
             "resolution_style": resolution_style,
             "perspective": "third-person",
@@ -198,12 +198,19 @@ with tab1:
     conflict = st.text_input("Main conflict (e.g. Stigma, emotional struggle)", value="the stigma faced by the family and the emotional struggle of reintegration")
     rebuilding = st.text_input("Rebuilding process (e.g. rebuilding relationships, gaining trust)", value="rebuilding relationships and trust")
     support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3)
-    emotional_tone = st.selectbox("Emotional tone", ["Hopeful", "Bittersweet", "Reflective", "Determined"], index=0)
+    story_style = st.selectbox("Style of story", [
+        "Reflective and thoughtful",
+        "Journey of redemption",
+        "Family reconciliation",
+        "Community healing",
+        "Personal transformation",
+        "Hope and resilience"
+    ], index=0)
     timeframe = st.selectbox("Reintegration timeframe", ["Just returned", "A few months", "A year", "Several years"], index=0)
     resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0)
 
     if st.button("Generate Story"):
-        generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style)
+        generate_story(name, setting, conflict, rebuilding, support, story_style, timeframe, resolution_style)
         display_story()
 
 # Add new third person story tab
