@@ -70,9 +70,6 @@ client = AzureOpenAI(
     api_version=st.secrets["AZURE_API_VERSION"]
 )
 
-# Define available languages
-languages = ['English', '中文', 'Melayu']
-
 # Initialise session state for message history and generated story
 if 'message_history' not in st.session_state:
     st.session_state['message_history'] = []
@@ -82,43 +79,6 @@ if 'generated_story' not in st.session_state:
 # Initialize session state for stories
 if 'stories' not in st.session_state:
     st.session_state['stories'] = []
-
-# Get language prefix for story generation
-def get_language_prefix(language):
-    if language == '中文':
-        return "请用纯中文写一个故事"
-    elif language == 'Melayu':
-        return "Sila tulis cerita dalam bahasa Melayu penuh, tiada perkataan Inggeris"
-    else:
-        return "Create a story"
-
-# Generate speech from text using gTTS
-def generate_speech(text, filename='story.mp3', language='en', directory="audio"):
-    directory = os.path.join(BASE_DIR, directory)
-    if selected_language == '中文':
-        language = 'zh'
-    elif selected_language == 'Melayu':
-        language = 'id'
-    else:
-        language = 'en'
-
-    # Create the text-to-speech object
-    myobj = gTTS(text=text, lang=language, slow=False)
-
-    # Check if the directory exists, and create it if it doesn't
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    
-    # Generate a filename with a timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"story_{timestamp}.mp3"
-    file_path = os.path.join(directory, filename)
-
-    # Save the converted audio
-    myobj.save(file_path)
-
-    # Play the converted file using 'open' on macOS
-    st.audio(file_path, format='audio/mp3', start_time=0)
 
 # Chat with the language model
 def chat_with_model(input_text):
@@ -187,7 +147,6 @@ def display_story():
 # Sidebar for input configuration (shared across tabs)
 with st.sidebar:
     st.title("Configuration")
-    length_minutes = st.slider("Length of story (minutes):", 1, 10, 5)
 
 # Main tabs
 tab1, tab2 = st.tabs(["Rebirth", "Reflect"])
