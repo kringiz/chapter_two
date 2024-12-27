@@ -231,12 +231,11 @@ with tab2:
         "Personal transformation",
         "Hope and resilience"
     ], index=0, key="story_style_third")
-    emotional_tone = st.selectbox("Emotional tone", ["Hopeful", "Bittersweet", "Reflective", "Determined"], index=0, key="emotion_third")
     timeframe = st.selectbox("Reintegration timeframe", ["Just returned", "A few months", "A year", "Several years"], index=0, key="time_third")
     resolution_style = st.selectbox("Resolution style", ["Positive resolution", "Ongoing struggles", "Open-ended"], index=0, key="resolution_third")
 
     if st.button("Generate Story", key="generate_third"):
-        generate_story_third_person(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style)
+        generate_story_third_person(name, setting, conflict, rebuilding, support, story_style, timeframe, resolution_style)
         display_story()
 
 # Tab 2: Display Previously Saved Stories (Reflect)
