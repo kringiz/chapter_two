@@ -112,15 +112,15 @@ def display_story():
 # Generate a story with the specified parameters
 def generate_story(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style):
     prompt = (
-        f"Write an inspirational real-life story in first-person perspective about an ex-offender named {name}, who is rebuilding their life after incarceration. "
-        f"The story is set in {setting}, with a focus on their family and community. "
-        f"The story centers on {second_chance}, and how this opportunity became a turning point. "
-        f"Show how this journey has {impact} throughout the narrative. "
-        f"The support from {support} plays a crucial role in the story. "
-        f"Write the story in a {story_style} style, focusing on the character's inner journey and growth. "
-        f"The ex-offender has been reintegrating into their family for {timeframe}. "
-        f"The story should conclude with {resolution_style}, emphasizing the power of second chances, forgiveness, and family unity. "
-        f"Ensure the content and language complexity are age-appropriate for students aged 13 to 16."
+        f"Write an emotional first-person narrative about my experience as {name}, an ex-offender returning home. "
+        f"I am living in {setting}, trying to rebuild connections with my family and community. "
+        f"Through {second_chance}, I found hope for a new beginning. "
+        f"My journey has {impact}, and it's deeply personal watching these changes unfold. "
+        f"The {support} I receive has taught me about humility and acceptance. "
+        f"Tell my story in a {story_style} way, revealing my inner thoughts and personal growth. "
+        f"It's been {timeframe} since I came home, and each day brings new challenges and victories. "
+        f"The story should end with {resolution_style}, showing how second chances and forgiveness can transform a person. "
+        f"Write for young readers (13-16), focusing on themes of redemption and family bonds."
     )
 
     with st.spinner(f"Generating your story..."):
@@ -149,15 +149,15 @@ def generate_story(name, setting, second_chance, impact, support, story_style, t
 # Add new function for third-person story generation
 def generate_story_third_person(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style):
     prompt = (
-        f"Write an inspirational story from a third-person perspective about {name}, an ex-offender rebuilding their life after incarceration. "
-        f"Set in {setting}, the narrative should focus on their family and community relationships. "
-        f"The story centers on {second_chance}, and how this opportunity transforms {name}'s life. "
-        f"Explore how this journey has {impact} throughout the narrative. "
-        f"The support from {support} plays a crucial role in the story. "
-        f"Write the story in a {story_style} style, focusing on the character's inner journey and growth. "
-        f"The story takes place {timeframe} after their return home. "
-        f"Conclude with {resolution_style}, emphasizing themes of second chances, forgiveness, and family reconciliation. "
-        f"Keep the content and language suitable for readers aged 13-16."
+        f"Write an observant third-person narrative about {name}, watching their reintegration journey unfold. "
+        f"In {setting}, their presence creates ripples through family and community relationships. "
+        f"When offered {second_chance}, the community witnesses their determination to change. "
+        f"Their transformation {impact}, showing how one person's journey affects many lives. "
+        f"Through {support}, others learn about forgiveness and growth. "
+        f"Tell their story in a {story_style} way, observing changes in family dynamics and community attitudes. "
+        f"After {timeframe} of their return, the neighborhood has seen significant changes. "
+        f"The narrative concludes with {resolution_style}, demonstrating how community support enables healing. "
+        f"Keep the story suitable for young readers (13-16), emphasizing community transformation and collective healing."
     )
 
     with st.spinner(f"Generating your story..."):
