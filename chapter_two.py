@@ -245,7 +245,7 @@ with tab3:
     st.write("(Story Archive)")
     if st.session_state['stories']:
         for story in st.session_state['stories']:
-            with st.expander(f"{story['name']} - {story['setting']}"):
+            with st.expander(f"{story['name']} - {story['second_chance']}"):
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Second Chance: {story["second_chance"]}</div>', unsafe_allow_html=True)
