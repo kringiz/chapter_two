@@ -199,7 +199,7 @@ with tab1:
     setting = st.text_input("Story setting (e.g. Family home, community)", value="family home and community")
     second_chance = st.text_input("Second chance offered (e.g. Job opportunity by an empathetic employer)", value="a job opportunity offered by a former teacher")
     impact = st.text_input("Impact on relationships (e.g. Family support, community acceptance)", value="strengthening family bonds and rebuilding trust with neighbors", key="impact_first")
-    support = st.selectbox("Support system involved", ["None", "Therapy", "Religious guidance", "Community support"], index=3)
+    support = st.selectbox("Support system involved", ["None", "Family", "Therapy", "Religious guidance", "Community support"], index=1)
     story_style = st.selectbox("Style of story", [
         "Reflective and thoughtful",
         "Journey of redemption",
