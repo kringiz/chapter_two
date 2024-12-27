@@ -101,10 +101,18 @@ def save_story(story_data):
     st.session_state['stories'].append(story_data)
     st.success("Story saved successfully!")
 
+# Function to display the story
+def display_story():
+    if 'generated_story' in st.session_state and st.session_state['generated_story']:
+        story_text = st.session_state['generated_story']
+        # Display each paragraph of the story text with dynamic font size
+        for paragraph in story_text.split('\n'):
+            st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+
 # Generate a story with the specified parameters
 def generate_story(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style):
     prompt = (
-        f"Write an inspirational real-life story about an ex-offender named {name}, who is rebuilding their life after a period of incarceration."
+        f"Write an inspirational real-life story in first-person perspective about an ex-offender named {name}, who is rebuilding their life after a period of incarceration."
         f"The story is set in {setting}, with a focus on their family and community."
         f"The main conflict centers on {conflict} and the emotional struggles of the ex-offender and their family."
         f"The rebuilding process involves {rebuilding} and is influenced by {support}."
@@ -129,6 +137,7 @@ def generate_story(name, setting, conflict, rebuilding, support, emotional_tone,
             "emotional_tone": emotional_tone,
             "timeframe": timeframe,
             "resolution_style": resolution_style,
+            "perspective": "first-person",
             "text": story_text
         }
 
@@ -136,13 +145,41 @@ def generate_story(name, setting, conflict, rebuilding, support, emotional_tone,
     else:
         st.error("The story generation did not return any text. Please try again.")
 
-# Function to display the story
-def display_story():
-    if 'generated_story' in st.session_state and st.session_state['generated_story']:
-        story_text = st.session_state['generated_story']
-        # Display each paragraph of the story text with dynamic font size
-        for paragraph in story_text.split('\n'):
-            st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+# Add new function for third-person story generation
+def generate_story_third_person(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style):
+    prompt = (
+        f"Write an inspirational story from a third-person perspective about {name}, an ex-offender rebuilding their life after incarceration. "
+        f"Set in {setting}, the narrative should focus on their family and community relationships. "
+        f"Explore how {name} faces {conflict}, showing the emotional struggles both they and their family experience. "
+        f"Describe their journey of {rebuilding}, highlighting the role of {support} in their recovery. "
+        f"Maintain a {emotional_tone} tone throughout the narrative. "
+        f"The story takes place {timeframe} after their return home. "
+        f"Conclude with {resolution_style}, emphasizing themes of second chances, forgiveness, and family reconciliation. "
+        f"Keep the content and language suitable for readers aged 13-16."
+    )
+
+    with st.spinner(f"Generating your story..."):
+        story_text = chat_with_model(prompt)
+    
+    if story_text:
+        st.session_state['generated_story'] = story_text
+
+        story_data = {
+            "name": name,
+            "setting": setting,
+            "conflict": conflict,
+            "rebuilding": rebuilding,
+            "support": support,
+            "emotional_tone": emotional_tone,
+            "timeframe": timeframe,
+            "resolution_style": resolution_style,
+            "perspective": "third-person",
+            "text": story_text
+        }
+
+        save_story(story_data)
+    else:
+        st.error("The story generation did not return any text. Please try again.")
 
 # Sidebar for input configuration (shared across tabs)
 with st.sidebar:
@@ -201,39 +238,3 @@ with tab3:
                 st.markdown(f'<div class="dynamic-font">Resolution Style: {story["resolution_style"]}</div>', unsafe_allow_html=True)
     else:
         st.write("No previous stories found.")
-
-# Add new function for third-person story generation
-def generate_story_third_person(name, setting, conflict, rebuilding, support, emotional_tone, timeframe, resolution_style):
-    prompt = (
-        f"Write an inspirational story from a third-person perspective about {name}, an ex-offender rebuilding their life after incarceration. "
-        f"Set in {setting}, the narrative should focus on their family and community relationships. "
-        f"Explore how {name} faces {conflict}, showing the emotional struggles both they and their family experience. "
-        f"Describe their journey of {rebuilding}, highlighting the role of {support} in their recovery. "
-        f"Maintain a {emotional_tone} tone throughout the narrative. "
-        f"The story takes place {timeframe} after their return home. "
-        f"Conclude with {resolution_style}, emphasizing themes of second chances, forgiveness, and family reconciliation. "
-        f"Keep the content and language suitable for readers aged 13-16."
-    )
-
-    with st.spinner(f"Generating your story..."):
-        story_text = chat_with_model(prompt)
-    
-    if story_text:
-        st.session_state['generated_story'] = story_text
-
-        story_data = {
-            "name": name,
-            "setting": setting,
-            "conflict": conflict,
-            "rebuilding": rebuilding,
-            "support": support,
-            "emotional_tone": emotional_tone,
-            "timeframe": timeframe,
-            "resolution_style": resolution_style,
-            "perspective": "third-person",
-            "text": story_text
-        }
-
-        save_story(story_data)
-    else:
-        st.error("The story generation did not return any text. Please try again.")
