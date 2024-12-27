@@ -88,7 +88,7 @@ def chat_with_model(input_text):
     response = client.chat.completions.create(
         model="gpt-4-0125-preview",
         messages=message_history,
-        temperature=0.7
+        temperature=0.6
     )
 
     response_text = response.choices[0].message.content
