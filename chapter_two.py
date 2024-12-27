@@ -248,8 +248,8 @@ with tab3:
             with st.expander(f"{story['name']} - {story['setting']}"):
                 for paragraph in story["text"].split('\n'):
                     st.markdown(f'<div class="dynamic-font">{paragraph}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dynamic-font">Second Chance: {story["second_chance"]}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Impact: {story["impact"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="dynamic-font">Rebuilding: {story["rebuilding"]}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Support: {story["support"]}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="dynamic-font">Resolution Style: {story["resolution_style"]}</div>', unsafe_allow_html=True)
     else:
