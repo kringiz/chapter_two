@@ -149,15 +149,16 @@ def generate_story(name, setting, second_chance, impact, support, story_style, t
 # Add new function for third-person story generation
 def generate_story_third_person(name, setting, second_chance, impact, support, story_style, timeframe, resolution_style):
     prompt = (
-        f"Write an observant third-person narrative about {name}, watching their reintegration journey unfold. "
-        f"In {setting}, their presence creates ripples through family and community relationships. "
-        f"When offered {second_chance}, the community witnesses their determination to change. "
-        f"Their transformation {impact}, showing how one person's journey affects many lives. "
-        f"Through {support}, others learn about forgiveness and growth. "
-        f"Tell their story in a {story_style} way, observing changes in family dynamics and community attitudes. "
-        f"After {timeframe} of their return, the neighborhood has seen significant changes. "
-        f"The narrative concludes with {resolution_style}, demonstrating how community support enables healing. "
-        f"Keep the story suitable for young readers (13-16), emphasizing community transformation and collective healing."
+        f"Write an intimate third-person narrative from the perspective of someone who was deeply hurt by {name}'s past actions, "
+        f"yet becomes the person offering them {second_chance}. "
+        f"Set in {setting}, explore the narrator's internal struggle: their memories of betrayal, their fear of being hurt again, "
+        f"and their courageous decision to offer {name} another chance despite these fears. "
+        f"Show how this decision {impact} - not just {name}'s life, but the narrator's own healing journey. "
+        f"Describe how {support} helps both {name} and the narrator navigate this complex path of reconciliation. "
+        f"Tell their story in a {story_style} way, revealing the delicate balance between protecting oneself and opening up to trust again. "
+        f"After {timeframe}, both characters face ongoing challenges and small victories. "
+        f"The story {resolution_style}, showing how forgiveness is both a choice and a journey. "
+        f"Write for young readers (13-16), exploring themes of trust, healing from hurt, and the courage to believe in change."
     )
 
     with st.spinner(f"Generating your story..."):
